@@ -1,6 +1,10 @@
 <?php
 namespace App\Tests;
 
+use App\Interfaces\IMesaService;
+use App\Interfaces\IPedidoService;
+use App\Interfaces\IProductoService;
+use App\Interfaces\IUsuarioService;
 use App\Services\UsuarioService;
 use App\Services\ProductoService;
 use App\Services\MesaService;
@@ -8,10 +12,10 @@ use App\Services\PedidoService;
 
 class Tests 
 {
-    private UsuarioService $_usuarioService;
-    private ProductoService $_productoService;
-    private MesaService $_mesaService;
-    private PedidoService $_pedidoService;
+    private IUsuarioService $_usuarioService;
+    private IProductoService $_productoService;
+    private IMesaService $_mesaService;
+    private IPedidoService $_pedidoService;
 
     public function __construct() 
     {

@@ -11,6 +11,9 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 require __DIR__ . '/../vendor/autoload.php';
 
 use App\Controllers\UsuarioController;
+use App\Controllers\ProductoController;
+use App\Controllers\MesaController;
+use App\Controllers\PedidoController;
 use App\Tests\Tests;
 
 // Load ENV
@@ -47,28 +50,35 @@ $capsule->bootEloquent();
 // Routes
 $app->group('/usuarios', function (RouteCollectorProxy $group) {
     $group->get('[/]', UsuarioController::class . ':TraerTodos');
-    $group->get('/{usuario}', UsuarioController::class . ':TraerUno');
+    // $group->get('/{usuario}', UsuarioController::class . ':TraerUno');
     $group->post('[/]', UsuarioController::class . ':CargarUno');
-    $group->put('/{id}', UsuarioController::class . ':ModificarUno');
-    $group->delete('/{id}', UsuarioController::class . ':BorrarUno');
+    // $group->put('/{id}', UsuarioController::class . ':ModificarUno');
+    // $group->delete('/{id}', UsuarioController::class . ':BorrarUno');
 });
 
+$app->group('/productos', function (RouteCollectorProxy $group) {
+    $group->get('[/]', ProductoController::class . ':TraerTodos');
+    $group->post('[/]', ProductoController::class . ':CargarUno');
+});
+
+$app->group('/mesas', function (RouteCollectorProxy $group) {
+    $group->get('[/]', MesaController::class . ':TraerTodos');
+    $group->post('[/]', MesaController::class . ':CargarUno');
+});
+
+$app->group('/pedidos', function (RouteCollectorProxy $group) {
+    $group->get('[/]', PedidoController::class . ':TraerTodos');
+    $group->post('[/]', PedidoController::class . ':CargarUno');
+});
+
+// Tests
 $app->get('/test', Tests::class . ':correrTests');
 
+// Punto de entrada
 $app->get('[/]', function (Request $request, Response $response) {    
     $response->getBody()->write("Slim Framework 4 PHP");
     return $response;
 
-});
-$app->post('[/]', function (Request $request, Response $response) {  
-    $content = array();
-
-    foreach ($request->getParsedBody() as $key => $value) {
-        $content[$key] = $value;
-    }
-
-    $response->getBody()->write(json_encode($content));
-    return $response->withHeader("Content-Type", "application/json");
 });
 
 $app->run();

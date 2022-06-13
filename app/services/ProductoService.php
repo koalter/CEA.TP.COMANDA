@@ -3,8 +3,9 @@ namespace App\Services;
 
 use App\Models\Producto;
 use App\DTO\ProductoDTO;
+use App\Interfaces\IProductoService;
 
-class ProductoService 
+class ProductoService implements IProductoService
 {
     #region Singleton
     private static $productoService;
@@ -51,7 +52,7 @@ class ProductoService
         return $dtoProductos;
     }
 
-    public function ObtenerProducto(string $strProducto) : Producto
+    public function ObtenerProducto(string $strProducto)
     {
         return Producto::where('descripcion', '=', $strProducto)->first();
     }

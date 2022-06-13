@@ -3,8 +3,9 @@ namespace App\Services;
 
 use App\Models\Usuario;
 use App\DTO\UsuarioDTO;
+use App\Interfaces\IUsuarioService;
 
-class UsuarioService 
+class UsuarioService implements IUsuarioService
 {
     #region Singleton
     private static $usuarioService;

@@ -3,8 +3,9 @@ namespace App\Services;
 
 use App\Models\Pedido;
 use App\DTO\PedidoDTO;
+use App\Interfaces\IPedidoService;
 
-class PedidoService 
+class PedidoService implements IPedidoService
 {
     #region Singleton
     private static $pedidoService;
@@ -67,7 +68,7 @@ class PedidoService
 
         foreach ($pedidos as $pedido) 
         {
-            $dtoPedidos[] = new PedidoDTO($pedido->id, $pedido->producto, $pedido->cantidad, $pedido->estado->descripcion);
+            $dtoPedidos[] = new PedidoDTO($pedido->id, $pedido->producto->descripcion, $pedido->cantidad, $pedido->estado->descripcion);
         }
 
         return $dtoPedidos;

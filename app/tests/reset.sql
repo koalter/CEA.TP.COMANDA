@@ -1,5 +1,8 @@
 USE cea_tp_comanda;
 
+DELETE FROM pedidos;
+ALTER TABLE pedidos AUTO_INCREMENT = 1;
+
 DELETE FROM usuarios;
 ALTER TABLE usuarios AUTO_INCREMENT = 1;
 
@@ -8,6 +11,3 @@ ALTER TABLE productos AUTO_INCREMENT = 1;
 
 DELETE FROM mesas;
 ALTER TABLE mesas AUTO_INCREMENT = 1;
-
-DELETE FROM pedidos;
-ALTER TABLE pedidos AUTO_INCREMENT = 1;

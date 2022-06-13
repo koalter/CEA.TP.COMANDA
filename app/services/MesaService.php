@@ -4,8 +4,9 @@ namespace App\Services;
 use App\Models\Mesa;
 use App\Models\EstadoMesas;
 use App\DTO\MesaDTO;
+use App\Interfaces\IMesaService;
 
-class MesaService 
+class MesaService implements IMesaService
 {
     #region Singleton
     private static $mesaService;
