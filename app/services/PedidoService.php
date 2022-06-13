@@ -34,6 +34,8 @@ class PedidoService implements IPedidoService
     #region Métodos Públicos
     public function GenerarPedido(array $lista) 
     {
+        $resultadoFinal = false;
+
         if (!array_key_exists(self::CLIENTE, $lista)) 
         {
             throw new \Exception("Falta clave '".self::CLIENTE."'", 1);
@@ -54,9 +56,10 @@ class PedidoService implements IPedidoService
             }
         }
 
-        $this->CargarPedidosEnBase($pedidosAGuardar);
-
-        $resultadoFinal = $this->mesaService->CargarUno($cliente);
+        if ($this->CargarPedidosEnBase($pedidosAGuardar)) 
+        {
+            $resultadoFinal = $this->mesaService->CargarUno($cliente);
+        }
 
         return $resultadoFinal;
     }
@@ -78,10 +81,12 @@ class PedidoService implements IPedidoService
     #region Métodos Privados
     private function CargarPedidoEnMemoria(string $descripcion, int $cantidad) : Pedido 
     {
-        $producto = $this->productoService->ObtenerProducto(strtolower($descripcion));
+        $descripcionFormateada = $this->formatear($descripcion);
+
+        $producto = $this->productoService->ObtenerProducto($descripcionFormateada);
         if (is_null($producto))
         {
-            throw new \Exception("No se encontró registrado el producto '".$descripcion."'", 1);
+            throw new \Exception("No se encontró registrado el producto '".$descripcionFormateada."'", 1);
         }
 
         $pedido = new Pedido();
@@ -89,6 +94,15 @@ class PedidoService implements IPedidoService
         $pedido->producto_id = $producto->id;
 
         return $pedido;
+    }
+
+    private function formatear(string $texto) : string 
+    {
+        $primerPaso = trim($texto);
+        $segundoPaso = strtolower($primerPaso);
+        $tercerPaso = str_replace("_", " ", $segundoPaso);
+
+        return $tercerPaso;
     }
 
     private function CargarPedidosEnBase(array $pedidos) : bool 

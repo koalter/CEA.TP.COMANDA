@@ -49,7 +49,6 @@ CREATE TABLE cea_tp_comanda.usuarios(
 id INT(11) AUTO_INCREMENT,
 nombre VARCHAR(255) NOT NULL,
 rol_id INT(11) NOT NULL,
-is_active INT NOT NULL DEFAULT 1,
 created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 deleted_at DATETIME NULL,
@@ -89,3 +88,16 @@ VALUES ('pendiente'),
 ('en preparacion'),
 ('listo para servir'),
 ('servido');
+
+INSERT INTO cea_tp_comanda.usuarios (nombre, rol_id)
+VALUES ('test_socio', 1),
+('test_mozo', 2),
+('test_bartender', 5),
+('test_cocinero', 3),
+('test_cervecero', 4);
+
+INSERT INTO cea_tp_comanda.productos (descripcion, precio, rol_id)
+VALUES ('milanesa a caballo', 800, 3),
+('hamburguesa de garbanzo', 650, 3),
+('corona', 180, 4),
+('daikiri', 250, 5)
