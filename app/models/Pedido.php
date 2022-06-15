@@ -18,7 +18,7 @@ class Pedido extends Model
     ];
 
     protected $fillable = [
-        'cantidad', 'producto_id', 'estado_id', 'deleted_at'
+        'cantidad', 'producto_id', 'estado_id', 'mesa_id', 'deleted_at'
     ];
 
     public function producto() 
@@ -29,5 +29,10 @@ class Pedido extends Model
     public function estado() 
     {
         return $this->belongsTo(EstadoPedidos::class, 'estado_id', 'id');
+    }
+
+    public function mesa() 
+    {
+        $this->belongsTo(Mesa::class, 'mesa_id', 'id');
     }
 }

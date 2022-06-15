@@ -48,6 +48,7 @@ FOREIGN KEY fk_productos_rol (rol_id) REFERENCES roles (id)
 CREATE TABLE cea_tp_comanda.usuarios(
 id INT(11) AUTO_INCREMENT,
 nombre VARCHAR(255) NOT NULL,
+clave VARCHAR(255) NOT NULL,
 rol_id INT(11) NOT NULL,
 created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -58,8 +59,9 @@ FOREIGN KEY fk_usuarios_rol (rol_id) REFERENCES roles (id)
 
 CREATE TABLE cea_tp_comanda.pedidos(
 id INT(11) AUTO_INCREMENT,
-producto_id INT(11) NOT NULL,
 cantidad INT(11) NOT NULL DEFAULT 1,
+producto_id INT(11) NOT NULL,
+mesa_id INT(11) NOT NULL,
 estado_id INT(11) NOT NULL DEFAULT 1,
 created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -89,12 +91,12 @@ VALUES ('pendiente'),
 ('listo para servir'),
 ('servido');
 
-INSERT INTO cea_tp_comanda.usuarios (nombre, rol_id)
-VALUES ('test_socio', 1),
-('test_mozo', 2),
-('test_bartender', 5),
-('test_cocinero', 3),
-('test_cervecero', 4);
+INSERT INTO cea_tp_comanda.usuarios (nombre, rol_id, clave) -- clave = 'password'
+VALUES ('test_socio', 1, '$2y$10$M2LLDW5MmiuqGGmQbqpYYuSngtnqAiAiHmPwnbkzVty1AA/tzZIfW'),
+('test_mozo', 2, '$2y$10$tn6hASWCJlCEKr.DgoY0qOPvQnNErRhl4em0vEcjqjTIUClD1ll0W'),
+('test_bartender', 5, '$2y$10$w5LTksgi5sjZoZvUgx9EP.DRpcowGZ4hbGTi.dC50PDqcbQwN5GL.'),
+('test_cocinero', 3, '$2y$10$3XffNkVdPvUbRBMhe6uGT.JGV3U6xPpW0/boEHUue4YvtiVdqD5YS'),
+('test_cervecero', 4, '$2y$10$vPavHYgRJoh2RTliazeFheLcwEWiqvY6iV/5fVkasVhI2dGNK1fbS');
 
 INSERT INTO cea_tp_comanda.productos (descripcion, precio, rol_id)
 VALUES ('milanesa a caballo', 800, 3),

@@ -14,6 +14,7 @@ use App\Controllers\UsuarioController;
 use App\Controllers\ProductoController;
 use App\Controllers\MesaController;
 use App\Controllers\PedidoController;
+use App\Middlewares\TokenMiddleware;
 use App\Tests\Tests;
 
 // Load ENV
@@ -54,22 +55,32 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
     $group->post('[/]', UsuarioController::class . ':CargarUno');
     // $group->put('/{id}', UsuarioController::class . ':ModificarUno');
     // $group->delete('/{id}', UsuarioController::class . ':BorrarUno');
+})->add(function ($request, $handler) {
+    return TokenMiddleware::VerificarToken($request, $handler);
 });
 
 $app->group('/productos', function (RouteCollectorProxy $group) {
     $group->get('[/]', ProductoController::class . ':TraerTodos');
     $group->post('[/]', ProductoController::class . ':CargarUno');
+})->add(function ($request, $handler) {
+    return TokenMiddleware::VerificarToken($request, $handler);
 });
 
 $app->group('/mesas', function (RouteCollectorProxy $group) {
     $group->get('[/]', MesaController::class . ':TraerTodos');
     $group->post('[/]', MesaController::class . ':CargarUno');
+})->add(function ($request, $handler) {
+    return TokenMiddleware::VerificarToken($request, $handler);
 });
 
 $app->group('/pedidos', function (RouteCollectorProxy $group) {
     $group->get('[/]', PedidoController::class . ':TraerTodos');
     $group->post('[/]', PedidoController::class . ':CargarUno');
+})->add(function ($request, $handler) {
+    return TokenMiddleware::VerificarToken($request, $handler);
 });
+
+$app->post('/login', UsuarioController::class . ':Login');
 
 // Tests
 $app->get('/test', Tests::class . ':correrTests');
@@ -78,7 +89,6 @@ $app->get('/test', Tests::class . ':correrTests');
 $app->get('[/]', function (Request $request, Response $response) {    
     $response->getBody()->write("Slim Framework 4 PHP");
     return $response;
-
 });
 
 $app->run();

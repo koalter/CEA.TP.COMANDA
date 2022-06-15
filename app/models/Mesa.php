@@ -22,4 +22,9 @@ class Mesa extends Model
     {
         return $this->belongsTo(EstadoMesas::class, "estado_id", "id");
     }
+
+    public function pedidos()
+    {
+        return $this->hasMany(Pedido::class, "mesa_id", "id");
+    }
 }

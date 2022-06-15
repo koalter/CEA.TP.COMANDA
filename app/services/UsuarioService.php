@@ -29,12 +29,13 @@ class UsuarioService implements IUsuarioService
     #endregion
 
     #region Métodos Públicos
-    public function CargarUno(string $nombre, string $strRol) 
+    public function CargarUno(string $nombre, string $clave, string $strRol) 
     {
         $rol = $this->rolService->ObtenerRol(strtolower($strRol));
         // Creamos el usuario
         $usuario = new Usuario();
         $usuario->nombre = $nombre;
+        $usuario->clave = password_hash($clave, PASSWORD_DEFAULT);
         
         return $rol->usuarios()->save($usuario);
     }
@@ -49,6 +50,24 @@ class UsuarioService implements IUsuarioService
         }
 
         return $dtoUsuarios;
+    }
+
+    public function Login(string $username, string $password)
+    {
+        $user = Usuario::where(array(
+            'nombre' => $username
+        ))->first();
+
+        if (!password_verify($password, $user->clave))
+        {
+            throw new \Exception("Credenciales inválidas");
+        }
+
+        $dto = new UsuarioDTO($user->id, $user->nombre, $user->rol->nombre);
+
+        $token = TokenService::CrearToken($dto);
+
+        return setcookie("token", $token);
     }
     #endregion
 }

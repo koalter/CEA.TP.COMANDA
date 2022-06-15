@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-use App\Models\Usuario;
 use App\Services\UsuarioService;
 use App\Interfaces\IApiUsable;
 use App\Interfaces\IUsuarioService;
@@ -14,15 +13,31 @@ class UsuarioController implements IApiUsable
   {
     $this->_usuarioService = UsuarioService::obtenerInstancia();
   }
+
+  public function Login($request, $response, $args) 
+  {
+    $body = $request->getParsedBody();
+    $username = $body['usuario'];
+    $password = $body['password'];
+
+    $token = $this->_usuarioService->Login($username, $password);
+
+    $newResponse = $response->withStatus(200);
+
+    $newResponse->getBody()->write(json_encode($token));
+
+    return $newResponse->withHeader("Content-Type", "application/json");
+  }
   
   public function CargarUno($request, $response, $args)
   {
     $parametros = $request->getParsedBody();
 
     $nombre = $parametros['nombre'];
+    $password = $parametros['password'];
     $rol = $parametros['rol'];
 
-    $result = $this->_usuarioService->CargarUno($nombre, $rol);
+    $result = $this->_usuarioService->CargarUno($nombre, $password, $rol);
 
     $payload = json_encode(array("mensaje" => $result ? "Usuario creado con exito" : "El usuario no pudo ser creado"));
 
