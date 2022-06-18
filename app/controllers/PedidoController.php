@@ -36,4 +36,40 @@ class PedidoController implements IApiUsable
         return $response
         ->withHeader('Content-Type', 'application/json');
     }
+
+    public function ListarPendientes($request, $response) 
+    {
+        $resultado = $this->_pedidoService->ListarPendientes($_COOKIE['rol']);
+        
+        $response->getBody()->write(json_encode($resultado));
+        return $response
+        ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function ListarEnPreparacion($request, $response) 
+    {
+        $resultado = $this->_pedidoService->ListarEnPreparacion($_COOKIE['rol']);
+        
+        $response->getBody()->write(json_encode($resultado));
+        return $response
+        ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function PrepararSiguiente($request, $response) 
+    {
+        $resultado = $this->_pedidoService->PrepararSiguiente($_COOKIE['rol']);
+
+        $response->getBody()->write(json_encode($resultado));
+        return $response
+        ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function ListoParaServir($request, $response, $args)
+    {
+        $resultado = $this->_pedidoService->ListoParaServir($_COOKIE['rol'], $args['id']);
+
+        $response->getBody()->write(json_encode($resultado));
+        return $response
+        ->withHeader('Content-Type', 'application/json');
+    } 
 }

@@ -86,9 +86,13 @@ $app->group('/mesas', function (RouteCollectorProxy $group) {
 
 $app->group('/pedidos', function (RouteCollectorProxy $group) {
     $group->get('[/]', PedidoController::class . ':TraerTodos');
+    $group->get('/pendientes', PedidoController::class . ':ListarPendientes');
+    $group->get('/en-preparacion', PedidoController::class . ':ListarEnPreparacion');
     $group->post('[/]', PedidoController::class . ':CargarUno')->add(function ($request, $handler) { 
         return RolMiddleware::VerificarRol($request, $handler, ['socio', 'mozo']);
     });
+    $group->put('/siguiente', PedidoController::class . ':PrepararSiguiente');
+    $group->put('/listo/{id}', PedidoController::class . ':ListoParaServir');
 })->add(function ($request, $handler) {
     return TokenMiddleware::VerificarToken($request, $handler);
 });

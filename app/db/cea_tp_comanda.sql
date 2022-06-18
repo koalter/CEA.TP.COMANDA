@@ -26,6 +26,7 @@ updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTA
 CREATE TABLE cea_tp_comanda.mesas(
 id INT(11) AUTO_INCREMENT,
 cliente VARCHAR(255) NOT NULL,
+foto VARCHAR(255) NULL,
 estado_id INT(11) NOT NULL DEFAULT 1,
 created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -39,6 +40,7 @@ id INT(11) AUTO_INCREMENT,
 descripcion VARCHAR(255) NOT NULL,
 precio DOUBLE NOT NULL,
 rol_id INT(11) NOT NULL,
+tiempo_preparacion INT(11) NOT NULL,
 created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 PRIMARY KEY (id),
@@ -98,8 +100,8 @@ VALUES ('test_socio', 1, '$2y$10$M2LLDW5MmiuqGGmQbqpYYuSngtnqAiAiHmPwnbkzVty1AA/
 ('test_cocinero', 3, '$2y$10$3XffNkVdPvUbRBMhe6uGT.JGV3U6xPpW0/boEHUue4YvtiVdqD5YS'),
 ('test_cervecero', 4, '$2y$10$vPavHYgRJoh2RTliazeFheLcwEWiqvY6iV/5fVkasVhI2dGNK1fbS');
 
-INSERT INTO cea_tp_comanda.productos (descripcion, precio, rol_id)
-VALUES ('milanesa a caballo', 800, 3),
-('hamburguesa de garbanzo', 650, 3),
-('corona', 180, 4),
-('daikiri', 250, 5)
+INSERT INTO cea_tp_comanda.productos (descripcion, precio, rol_id, tiempo_preparacion)
+VALUES ('milanesa a caballo', 800, 3, 10),
+('hamburguesa de garbanzo', 650, 3, 8),
+('corona', 180, 4, 3),
+('daikiri', 250, 5, 3);

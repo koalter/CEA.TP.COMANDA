@@ -4,6 +4,8 @@ namespace App\Services;
 use App\Models\Pedido;
 use App\DTO\PedidoDTO;
 use App\Interfaces\IPedidoService;
+use App\Models\EstadoPedidos;
+use App\Models\Rol;
 
 class PedidoService implements IPedidoService
 {
@@ -75,6 +77,57 @@ class PedidoService implements IPedidoService
         }
 
         return $dtoPedidos;
+    }
+
+    public function ListarPendientes(string $rolDesc)
+    {
+        $rol = Rol::where('nombre', '=', $rolDesc)->first();
+        $pedidos = Pedido::has('producto')
+            ->whereRelation('producto', 'rol_id', $rol->id)
+            ->where('estado_id', '=', 1)
+            ->get();
+
+        return $pedidos;
+    }
+
+    public function ListarEnPreparacion(string $rolDesc)
+    {
+        $rol = Rol::where('nombre', '=', $rolDesc)->first();
+        $pedidos = Pedido::has('producto')
+            ->whereRelation('producto', 'rol_id', $rol->id)
+            ->where('estado_id', '=', 2)
+            ->get();
+
+        return $pedidos;
+    }
+
+    public function PrepararSiguiente(string $rolDesc)
+    {
+        $rol = Rol::where('nombre', '=', $rolDesc)->first();
+        $siguientePedido = Pedido::has('producto')
+            ->whereRelation('producto', 'rol_id', $rol->id)
+            ->where('estado_id', '=', 1)
+            ->first();
+
+        $siguientePedido->estado_id = 2;
+        $siguientePedido->save();
+        
+        return $siguientePedido;
+    }
+
+    public function ListoParaServir(string $rolDesc, int $id)
+    {
+        $rol = Rol::where('nombre', '=', $rolDesc)->first();
+        $siguientePedido = Pedido::has('producto')
+            ->whereRelation('producto', 'rol_id', $rol->id)
+            ->where('estado_id', '=', 2)
+            ->where('id', '=', $id)
+            ->first();
+
+        $siguientePedido->estado_id = 3;
+        $siguientePedido->save();
+        
+        return $siguientePedido;
     }
     #endregion
 
