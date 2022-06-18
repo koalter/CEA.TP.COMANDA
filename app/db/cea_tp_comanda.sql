@@ -62,6 +62,7 @@ FOREIGN KEY fk_usuarios_rol (rol_id) REFERENCES roles (id)
 CREATE TABLE cea_tp_comanda.pedidos(
 id INT(11) AUTO_INCREMENT,
 cantidad INT(11) NOT NULL DEFAULT 1,
+tiempo_preparacion INT(11) NULL,
 producto_id INT(11) NOT NULL,
 mesa_id INT(11) NOT NULL,
 estado_id INT(11) NOT NULL DEFAULT 1,

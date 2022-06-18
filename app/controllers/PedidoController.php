@@ -59,7 +59,9 @@ class PedidoController implements IApiUsable
     {
         $resultado = $this->_pedidoService->PrepararSiguiente($_COOKIE['rol']);
 
-        $response->getBody()->write(json_encode($resultado));
+        $payload = is_null($resultado) ? array("mensaje" => "No hay mas pedidos para preparar!") : $resultado;
+
+        $response->getBody()->write(json_encode($payload));
         return $response
         ->withHeader('Content-Type', 'application/json');
     }

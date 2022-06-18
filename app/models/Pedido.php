@@ -14,7 +14,7 @@ class Pedido extends Model
     public $timestamps = false;
     protected $with = [
         'producto',
-        'estado',
+        'estado'
     ];
 
     protected $fillable = [
@@ -33,6 +33,6 @@ class Pedido extends Model
 
     public function mesa() 
     {
-        $this->belongsTo(Mesa::class, 'mesa_id', 'id');
+        return $this->belongsTo(Mesa::class, 'mesa_id', 'id');
     }
 }

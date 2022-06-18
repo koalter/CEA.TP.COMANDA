@@ -12,7 +12,10 @@ class Mesa extends Model
     protected $table = 'mesas';
     public $incrementing = true;
     public $timestamps = false;
-    protected $with = ['estado'];
+    protected $with = [
+        'estado',
+        'pedidos'
+    ];
 
     protected $fillable = [
         'cliente', 'estado_id', 'deleted_at'
