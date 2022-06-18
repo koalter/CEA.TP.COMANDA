@@ -67,7 +67,7 @@ class UsuarioService implements IUsuarioService
 
         $token = TokenService::CrearToken($dto);
 
-        return setcookie("token", $token);
+        return setcookie("token", $token, time() + 3600) && setcookie("role", $user->rol->nombre, time() + 3600);
     }
     #endregion
 }

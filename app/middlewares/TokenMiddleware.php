@@ -18,20 +18,12 @@ class TokenMiddleware
 
         $token = $_COOKIE['token'];
 
-        $decoded = JWT::decode(
+        JWT::decode(
             $token,
             $_ENV['secret'],
             ['HS256']
         );
-
-        if ($decoded->admin)
-        {
-            return $handler->handle($request);
-        }
-        else 
-        {
-            echo "No posee suficientes permisos para realizar esta accion.";
-            die();
-        }
+        
+        return $handler->handle($request);
     }
 }

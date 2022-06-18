@@ -15,6 +15,7 @@ use App\Controllers\ProductoController;
 use App\Controllers\MesaController;
 use App\Controllers\PedidoController;
 use App\Middlewares\TokenMiddleware;
+use App\Middlewares\RolMiddleware;
 use App\Tests\Tests;
 
 // Load ENV
@@ -50,9 +51,13 @@ $capsule->bootEloquent();
 
 // Routes
 $app->group('/usuarios', function (RouteCollectorProxy $group) {
-    $group->get('[/]', UsuarioController::class . ':TraerTodos');
+    $group->get('[/]', UsuarioController::class . ':TraerTodos')->add(function ($request, $handler) { 
+        return RolMiddleware::VerificarRol($request, $handler, ['socio']);
+    });
     // $group->get('/{usuario}', UsuarioController::class . ':TraerUno');
-    $group->post('[/]', UsuarioController::class . ':CargarUno');
+    $group->post('[/]', UsuarioController::class . ':CargarUno')->add(function ($request, $handler) { 
+        return RolMiddleware::VerificarRol($request, $handler, ['socio']);
+    });
     // $group->put('/{id}', UsuarioController::class . ':ModificarUno');
     // $group->delete('/{id}', UsuarioController::class . ':BorrarUno');
 })->add(function ($request, $handler) {
@@ -60,14 +65,20 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
 });
 
 $app->group('/productos', function (RouteCollectorProxy $group) {
-    $group->get('[/]', ProductoController::class . ':TraerTodos');
-    $group->post('[/]', ProductoController::class . ':CargarUno');
+    $group->get('[/]', ProductoController::class . ':TraerTodos')->add(function ($request, $handler) { 
+        return RolMiddleware::VerificarRol($request, $handler, ['socio']);
+    });
+    $group->post('[/]', ProductoController::class . ':CargarUno')->add(function ($request, $handler) { 
+        return RolMiddleware::VerificarRol($request, $handler, ['socio']);
+    });
 })->add(function ($request, $handler) {
     return TokenMiddleware::VerificarToken($request, $handler);
 });
 
 $app->group('/mesas', function (RouteCollectorProxy $group) {
-    $group->get('[/]', MesaController::class . ':TraerTodos');
+    $group->get('[/]', MesaController::class . ':TraerTodos')->add(function ($request, $handler) { 
+        return RolMiddleware::VerificarRol($request, $handler, ['socio']);
+    });
     $group->post('[/]', MesaController::class . ':CargarUno');
 })->add(function ($request, $handler) {
     return TokenMiddleware::VerificarToken($request, $handler);
@@ -75,7 +86,9 @@ $app->group('/mesas', function (RouteCollectorProxy $group) {
 
 $app->group('/pedidos', function (RouteCollectorProxy $group) {
     $group->get('[/]', PedidoController::class . ':TraerTodos');
-    $group->post('[/]', PedidoController::class . ':CargarUno');
+    $group->post('[/]', PedidoController::class . ':CargarUno')->add(function ($request, $handler) { 
+        return RolMiddleware::VerificarRol($request, $handler, ['socio', 'mozo']);
+    });
 })->add(function ($request, $handler) {
     return TokenMiddleware::VerificarToken($request, $handler);
 });
