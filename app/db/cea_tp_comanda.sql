@@ -26,13 +26,15 @@ updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTA
 CREATE TABLE cea_tp_comanda.mesas(
 id INT(11) AUTO_INCREMENT,
 cliente VARCHAR(255) NOT NULL,
+codigo VARCHAR(5) NULL,
 foto VARCHAR(255) NULL,
 estado_id INT(11) NOT NULL DEFAULT 1,
 created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 deleted_at DATETIME NULL,
 PRIMARY KEY (id),
-FOREIGN KEY fk_mesas_estado (estado_id) REFERENCES estado_mesas (id)
+FOREIGN KEY fk_mesas_estado (estado_id) REFERENCES estado_mesas (id),
+UNIQUE (codigo)
 ) ENGINE = InnoDB CHARSET=utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE cea_tp_comanda.productos(

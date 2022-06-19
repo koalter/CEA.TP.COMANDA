@@ -38,4 +38,15 @@ class MesaController implements IApiUsable
         return $response
         ->withHeader('Content-Type', 'application/json');
     }
+
+    public function AgregarFoto($request, $response, $args)
+    {
+        $resultado = $this->_mesaService->GuardarFoto($args["codigo"], $_FILES["foto"]["tmp_name"]);
+
+        $payload = array("mensaje" => $resultado ? "La foto se subio con exito!" : "No se pudo subir la foto!");
+
+        $response->getBody()->write(json_encode($payload));
+        return $response
+        ->withHeader('Content-Type', 'application/json');
+    }
 }

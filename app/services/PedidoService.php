@@ -37,8 +37,6 @@ class PedidoService implements IPedidoService
     #region Métodos Públicos
     public function GenerarPedido(array $lista) 
     {
-        $resultadoFinal = false;
-
         if (!array_key_exists(self::CLIENTE, $lista)) 
         {
             throw new \Exception("Falta clave '".self::CLIENTE."'", 1);
@@ -195,14 +193,20 @@ class PedidoService implements IPedidoService
         return $tercerPaso;
     }
 
-    private function CargarPedidosEnBase(string $cliente, array $pedidos) : bool 
+    private function CargarPedidosEnBase(string $cliente, array $pedidos) : string 
     {
         $mesa = Mesa::firstOrCreate([
             'cliente' => $cliente
         ]);
+        if (!isset($mesa->codigo))
+        {
+            $mesa->codigo = $this->mesaService->GenerarCodigo();
+            $mesa->save();
+        }
+
         $mesa->pedidos()->saveMany($pedidos);
 
-        return true;
+        return $mesa->codigo;
     }
     #endregion
 }

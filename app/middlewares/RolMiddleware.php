@@ -9,7 +9,7 @@ class RolMiddleware
 {
     public static function VerificarRol(Request $request,  RequestHandler $handler, array $roles) : Response
     {
-        if (!array_search($_COOKIE['rol'], $roles))
+        if (array_search($_COOKIE['rol'], $roles) === false)
         {
             echo "Usuario no autorizado!";
             die();

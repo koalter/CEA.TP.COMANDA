@@ -80,12 +80,17 @@ $app->group('/mesas', function (RouteCollectorProxy $group) {
         return RolMiddleware::VerificarRol($request, $handler, ['socio']);
     });
     $group->post('[/]', MesaController::class . ':CargarUno');
+    $group->post('/foto/{codigo}', MesaController::class . ':AgregarFoto')->add(function ($request, $handler) { 
+        return RolMiddleware::VerificarRol($request, $handler, ['socio', 'mozo']);
+    });
 })->add(function ($request, $handler) {
     return TokenMiddleware::VerificarToken($request, $handler);
 });
 
 $app->group('/pedidos', function (RouteCollectorProxy $group) {
-    $group->get('[/]', PedidoController::class . ':TraerTodos');
+    $group->get('[/]', PedidoController::class . ':TraerTodos')->add(function ($request, $handler) { 
+        return RolMiddleware::VerificarRol($request, $handler, ['socio']);
+    });
     $group->get('/pendientes', PedidoController::class . ':ListarPendientes');
     $group->get('/en-preparacion', PedidoController::class . ':ListarEnPreparacion');
     $group->post('[/]', PedidoController::class . ':CargarUno')->add(function ($request, $handler) { 
