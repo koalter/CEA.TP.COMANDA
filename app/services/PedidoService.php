@@ -4,6 +4,9 @@ namespace App\Services;
 use App\Models\Pedido;
 use App\DTO\PedidoDTO;
 use App\Interfaces\IPedidoService;
+use App\Models\EstadoPedidos;
+use App\Models\Mesa;
+use App\Models\Rol;
 
 class PedidoService implements IPedidoService
 {
@@ -32,33 +35,23 @@ class PedidoService implements IPedidoService
     #endregion
 
     #region Métodos Públicos
-    public function GenerarPedido(array $lista) 
+    public function GenerarPedido(string $cliente, array $lista) 
     {
-        $resultadoFinal = false;
-
-        if (!array_key_exists(self::CLIENTE, $lista)) 
+        if (trim($cliente) === "") 
         {
             throw new \Exception("Falta clave '".self::CLIENTE."'", 1);
-            
         }
 
         $pedidosAGuardar = array();
         
         foreach ($lista as $key => $value) 
         {
-            if ($key === self::CLIENTE) 
-            {
-                $cliente = $value;
-            }
-            else 
-            {
-                $pedidosAGuardar[] = $this->CargarPedidoEnMemoria($key, $value);
-            }
+            $pedidosAGuardar[] = $this->CargarPedidoEnMemoria($key, $value);
         }
 
-        if ($this->CargarPedidosEnBase($pedidosAGuardar)) 
+        if (count($pedidosAGuardar) > 0)
         {
-            $resultadoFinal = $this->mesaService->CargarUno($cliente);
+            $resultadoFinal = $this->CargarPedidosEnBase($cliente, $pedidosAGuardar);
         }
 
         return $resultadoFinal;
@@ -71,10 +64,98 @@ class PedidoService implements IPedidoService
 
         foreach ($pedidos as $pedido) 
         {
-            $dtoPedidos[] = new PedidoDTO($pedido->id, $pedido->producto->descripcion, $pedido->cantidad, $pedido->estado->descripcion);
+            $dtoPedidos[] = new PedidoDTO($pedido->id, $pedido->producto->descripcion, $pedido->mesa->cliente, $pedido->cantidad, $pedido->estado->descripcion);
         }
 
         return $dtoPedidos;
+    }
+
+    public function ListarPendientes(string $rolDesc)
+    {
+        $rol = Rol::where('nombre', '=', $rolDesc)->first();
+        $pedidos = Pedido::has('producto')
+            ->whereRelation('producto', 'rol_id', $rol->id)
+            ->where('estado_id', '=', 1)
+            ->get();
+        
+        $dtoPedidos = array();
+
+        foreach ($pedidos as $pedido) 
+        {
+            $dtoPedidos[] = new PedidoDTO($pedido->id, $pedido->producto->descripcion, $pedido->mesa->cliente, $pedido->cantidad, $pedido->estado->descripcion);
+        }
+
+        return $dtoPedidos;
+    }
+
+    public function ListarEnPreparacion(string $rolDesc)
+    {
+        $rol = Rol::where('nombre', '=', $rolDesc)->first();
+        $pedidos = Pedido::has('producto')
+            ->whereRelation('producto', 'rol_id', $rol->id)
+            ->where('estado_id', '=', 2)
+            ->get();
+
+        $dtoPedidos = array();
+
+        foreach ($pedidos as $pedido) 
+        {
+            $dtoPedidos[] = new PedidoDTO($pedido->id, $pedido->producto->descripcion, $pedido->mesa->cliente, $pedido->cantidad, $pedido->estado->descripcion);
+        }
+
+        return $dtoPedidos;
+    }
+
+    public function PrepararSiguiente(string $rolDesc)
+    {
+        $rol = Rol::where('nombre', '=', $rolDesc)->first();
+        $siguientePedido = Pedido::has('producto')
+            ->whereRelation('producto', 'rol_id', $rol->id)
+            ->where('estado_id', '=', 1)
+            ->first();
+
+        if (is_null($siguientePedido))
+        {
+            return null;
+        }
+
+        $siguientePedido->estado_id = 2;
+        if ($siguientePedido->save())
+        {
+            $dtoPedido = new PedidoDTO(
+                $siguientePedido->id, 
+                $siguientePedido->producto->descripcion, 
+                $siguientePedido->mesa->cliente, 
+                $siguientePedido->cantidad, 
+                $siguientePedido->estado->descripcion
+            );
+        }
+        
+        return $dtoPedido;
+    }
+
+    public function ListoParaServir(string $rolDesc, int $id)
+    {
+        $rol = Rol::where('nombre', '=', $rolDesc)->first();
+        $siguientePedido = Pedido::has('producto')
+            ->whereRelation('producto', 'rol_id', $rol->id)
+            ->where('estado_id', '=', 2)
+            ->where('id', '=', $id)
+            ->first();
+
+        $siguientePedido->estado_id = 3;
+        if ($siguientePedido->save())
+        {
+            $dtoPedido = new PedidoDTO(
+                $siguientePedido->id, 
+                $siguientePedido->producto->descripcion, 
+                $siguientePedido->mesa->cliente, 
+                $siguientePedido->cantidad, 
+                $siguientePedido->estado->descripcion
+            );
+        }
+        
+        return $dtoPedido;
     }
     #endregion
 
@@ -105,19 +186,20 @@ class PedidoService implements IPedidoService
         return $tercerPaso;
     }
 
-    private function CargarPedidosEnBase(array $pedidos) : bool 
+    private function CargarPedidosEnBase(string $cliente, array $pedidos) : string 
     {
-        $count = count($pedidos);
-
-        for ($i = 0; $i < $count; $i++) 
+        $mesa = Mesa::firstOrCreate([
+            'cliente' => $cliente
+        ]);
+        if (!isset($mesa->codigo))
         {
-            if (!is_a($pedidos[$i], Pedido::class) || !$pedidos[$i]->save()) 
-            {
-                throw new \Exception("Error al generar pedido. Pedido: " . json_encode($pedidos[$i]), 1);
-            }
+            $mesa->codigo = $this->mesaService->GenerarCodigo();
+            $mesa->save();
         }
 
-        return true;
+        $mesa->pedidos()->saveMany($pedidos);
+
+        return $mesa->codigo;
     }
     #endregion
 }

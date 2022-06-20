@@ -12,8 +12,11 @@ class Mesa extends Model
     protected $table = 'mesas';
     public $incrementing = true;
     public $timestamps = false;
-    protected $with = ['estado'];
-
+    protected $with = [
+        'estado',
+        'pedidos'
+    ];
+  
     protected $fillable = [
         'cliente', 'estado_id', 'deleted_at'
     ];
@@ -21,5 +24,10 @@ class Mesa extends Model
     public function estado() 
     {
         return $this->belongsTo(EstadoMesas::class, "estado_id", "id");
+    }
+
+    public function pedidos()
+    {
+        return $this->hasMany(Pedido::class, "mesa_id", "id");
     }
 }
