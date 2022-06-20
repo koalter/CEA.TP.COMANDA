@@ -16,7 +16,7 @@ class Mesa extends Model
         'estado',
         'pedidos'
     ];
-
+  
     protected $fillable = [
         'cliente', 'estado_id', 'deleted_at'
     ];
