@@ -93,7 +93,7 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
     });
     $group->get('/pendientes', PedidoController::class . ':ListarPendientes');
     $group->get('/en-preparacion', PedidoController::class . ':ListarEnPreparacion');
-    $group->post('[/]', PedidoController::class . ':CargarUno')->add(function ($request, $handler) { 
+    $group->post('/{cliente}', PedidoController::class . ':CargarUno')->add(function ($request, $handler) { 
         return RolMiddleware::VerificarRol($request, $handler, ['socio', 'mozo']);
     });
     $group->put('/siguiente', PedidoController::class . ':PrepararSiguiente');

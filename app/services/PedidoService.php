@@ -35,9 +35,9 @@ class PedidoService implements IPedidoService
     #endregion
 
     #region Métodos Públicos
-    public function GenerarPedido(array $lista) 
+    public function GenerarPedido(string $cliente, array $lista) 
     {
-        if (!array_key_exists(self::CLIENTE, $lista)) 
+        if (trim($cliente) === "") 
         {
             throw new \Exception("Falta clave '".self::CLIENTE."'", 1);
         }
@@ -46,14 +46,7 @@ class PedidoService implements IPedidoService
         
         foreach ($lista as $key => $value) 
         {
-            if ($key === self::CLIENTE) 
-            {
-                $cliente = $value;
-            }
-            else 
-            {
-                $pedidosAGuardar[] = $this->CargarPedidoEnMemoria($key, $value);
-            }
+            $pedidosAGuardar[] = $this->CargarPedidoEnMemoria($key, $value);
         }
 
         if (count($pedidosAGuardar) > 0)

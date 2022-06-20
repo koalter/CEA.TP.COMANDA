@@ -3,7 +3,7 @@ namespace App\Interfaces;
 
 interface IPedidoService 
 {
-    public function GenerarPedido(array $lista);
+    public function GenerarPedido(string $cliente, array $lista);
     public function TraerTodos();
     public function ListarPendientes(string $rol);
     public function ListarEnPreparacion(string $rol);
