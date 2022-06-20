@@ -1,0 +1,7 @@
+Rol,101,test_rol_csv
+Usuario,101,test_usuario_csv,password,101
+Producto,101,test_producto_csv,100,101,10
+EstadoPedidos,101,test_estado_p_csv
+EstadoMesas,101,test_estado_m_csv
+Mesa,101,test_mesa_csv,CSVTS,,101
+Pedido,101,2,10,101,101,101
