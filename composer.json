@@ -16,5 +16,8 @@
         "psr-4": {
             "App\\": "app/"
         }
+    },
+    "scripts": {
+        "start": "php -S localhost:666 -t app"
     }
 }

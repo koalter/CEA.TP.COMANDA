@@ -3,15 +3,19 @@ namespace App\Controllers;
 
 use App\Services\UsuarioService;
 use App\Interfaces\IApiUsable;
+use App\Interfaces\IFileService;
 use App\Interfaces\IUsuarioService;
+use App\Services\FileService;
 
 class UsuarioController implements IApiUsable
 {
   private IUsuarioService $_usuarioService;
+  private IFileService $_fileService;
 
   public function __construct()
   {
     $this->_usuarioService = UsuarioService::obtenerInstancia();
+    $this->_fileService = FileService::obtenerInstancia();
   }
 
   public function Login($request, $response, $args) 
@@ -114,4 +118,62 @@ class UsuarioController implements IApiUsable
   //   return $response
   //     ->withHeader('Content-Type', 'application/json');
   // }
+
+  public function CargarCSV($request, $response)
+  {
+    try {
+      $body = $request->getParsedBody();
+      $archivo = $_FILES['archivo'];
+      $passwordEncriptado = isset($body['encriptado']) ? boolval($body['encriptado']) : false;
+      $resultado = $this->_fileService->CargarCSV($archivo['tmp_name'], $passwordEncriptado);
+      
+      $payload = json_encode($resultado);
+      $status = 200;
+
+    } catch (\Throwable $th) {
+      $payload = json_encode($th->getMessage());
+      $status = 400;
+    }
+
+    $response->getBody()->write($payload);
+    return $response
+      ->withHeader('Content-Type', 'application/json')
+      ->withStatus($status);
+  }
+
+  public function DescargarCSV($request, $response)
+  {
+    try {
+      $filename = $this->_fileService->DescargarCSV();
+
+      header('Content-Description: File Transfer');
+      header('Content-Type: application/octet-stream');
+      header('Content-Disposition: attachment; filename="'.basename($filename).'"');
+      header('Expires: 0');
+      header('Cache-Control: must-revalidate');
+      header('Pragma: public');
+      header('Content-Length: ' . filesize($filename));
+
+      flush();
+      if (readfile($filename, true))
+      {
+        $payload = json_encode(true);
+        $status = 200;
+      }
+      else 
+      {
+        $payload = "Error al leer el archivo desde el servidor!";
+        $status = 500;
+      }
+
+    } catch (\Throwable $th) {
+      $payload = json_encode($th->getMessage());
+      $status = 400;
+    }
+
+    $response->getBody()->write($payload);
+    return $response
+      ->withHeader('Content-Type', 'application/json')
+      ->withStatus($status);
+  }
 }

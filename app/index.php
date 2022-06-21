@@ -104,6 +104,20 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
 
 $app->post('/login', UsuarioController::class . ':Login');
 
+$app->group('/admin', function (RouteCollectorProxy $group) {
+    $group->get('/csv', UsuarioController::class . ':DescargarCSV')->add(function ($request, $handler) {
+        return TokenMiddleware::VerificarToken($request, $handler);
+    });
+    $group->post('/csv', UsuarioController::class . ':CargarCSV')->add(function ($request, $handler) {
+        if (!$request->getParsedBody()['secret'] === $_ENV['secret'])
+        {
+            echo "Acceso denegado.";
+            die();
+        }
+        return $handler->handle($request);
+    });
+});
+
 // Tests
 $app->get('/test', Tests::class . ':correrTests');
 
