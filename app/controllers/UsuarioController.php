@@ -144,9 +144,28 @@ class UsuarioController implements IApiUsable
   public function DescargarCSV($request, $response)
   {
     try {
-      $resultado = $this->_fileService->DescargarCSV();
-      $payload = json_encode($resultado);
-      $status = 200;
+      $filename = $this->_fileService->DescargarCSV();
+
+      header('Content-Description: File Transfer');
+      header('Content-Type: application/octet-stream');
+      header('Content-Disposition: attachment; filename="'.basename($filename).'"');
+      header('Expires: 0');
+      header('Cache-Control: must-revalidate');
+      header('Pragma: public');
+      header('Content-Length: ' . filesize($filename));
+
+      flush();
+      if (readfile($filename, true))
+      {
+        $payload = json_encode(true);
+        $status = 200;
+      }
+      else 
+      {
+        $payload = "Error al leer el archivo desde el servidor!";
+        $status = 500;
+      }
+
     } catch (\Throwable $th) {
       $payload = json_encode($th->getMessage());
       $status = 400;

@@ -57,14 +57,34 @@ class FileService implements IFileService
         $productos = Producto::all();
         $pedidos = Pedido::all();
 
-        return array(
-            "EstadoPedidos" => $estadoPedidos,
-            "EstadoMesas" => $estadoMesas,
-            "Roles" => $roles,
-            "Usuarios" => $usuarios,
-            "Productos" => $productos,
-            "Pedidos" => $pedidos
-        );
+        $csv = "";
+        
+        foreach ($estadoPedidos as $estadoPedido) {
+            $csv .= "EstadoPedidos" . "," . $estadoPedido->id . "," . $estadoPedido->descripcion . "\n";
+        }
+        foreach ($estadoMesas as $estadoMesa) {
+            $csv .= "EstadoMesas" . "," . $estadoMesa->id . "," . $estadoMesa->descripcion . "\n";
+        }
+        foreach ($roles as $rol) {
+            $csv .= "Rol" . "," . $rol->id . "," . $rol->nombre . "\n";
+        }
+        foreach ($usuarios as $usuario) {
+            $csv .= "Usuario" . "," . $usuario->id . "," . $usuario->nombre . "," . $usuario->clave . "," . $usuario->rol_id . "\n";
+        }
+        foreach ($productos as $producto) {
+            $csv .= "Producto" . "," . $producto->id . "," . $producto->descripcion . "," . $producto->precio . "," . $producto->rol_id . "," . $producto->tiempo_preparacion . "\n";
+        }
+        foreach ($pedidos as $pedido) {
+            $csv .= "Pedido" . "," . $pedido->id . "," . $pedido->cantidad . "," . $pedido->tiempo_preparacion . "," . $pedido->producto_id . "," . $pedido->mesa_id . "," . $pedido->estado_id . "\n";
+        }
+        
+        $filename = "./assets/data.csv";
+
+        $archivo = fopen($filename, "w");
+
+        fwrite($archivo, $csv);
+        fclose($archivo);
+        return $filename;
     }
     #endregion
 
