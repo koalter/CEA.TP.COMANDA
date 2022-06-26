@@ -122,7 +122,16 @@ $app->post('/login', UsuarioController::class . ':Login');
 
 $app->group('/cliente', function (RouteCollectorProxy $group) {
     $group->get('/ver/codigo/{codigo}/id/{id}', PedidoController::class . ':TraerUno');
-    $group->post('/encuesta/codigo/{codigo}/id/{id}', EncuestaController::class . ':ResponderEncuesta');
+});
+
+$app->group('/encuestas', function (RouteCollectorProxy $group) {
+    $group->post('/responder/codigo/{codigo}/id/{id}', EncuestaController::class . ':ResponderEncuesta');
+    
+    $group->get('/mejores', EncuestaController::class . ':MejoresComentarios')->add(function ($request, $handler) {
+        return RolMiddleware::VerificarRol($request, $handler, ['socio']);
+    })->add(function ($request, $handler) {
+        return TokenMiddleware::VerificarToken($request, $handler);
+    });
 });
 
 $app->group('/admin', function (RouteCollectorProxy $group) {

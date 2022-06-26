@@ -12,9 +12,6 @@ class Encuesta extends Model
     protected $table = 'encuestas';
     public $incrementing = true;
     public $timestamps = false;
-    public $with = [
-        'mesa'
-    ];
 
     protected $fillable = [
         'deleted_at'

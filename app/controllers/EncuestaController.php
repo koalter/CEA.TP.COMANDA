@@ -37,4 +37,13 @@ class EncuestaController
         ->withHeader('Content-Type', 'application/json')
         ->withStatus($status);
     }
+
+    public function MejoresComentarios($request, $response)
+    {
+        $resultado = $this->_encuestaService->TraerMejores();
+
+        $response->getBody()->write(json_encode($resultado));
+        return $response
+        ->withHeader('Content-Type', 'application/json');
+    }
 }

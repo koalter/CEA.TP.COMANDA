@@ -1,6 +1,7 @@
 <?php
 namespace App\Services;
 
+use App\DTO\EncuestaDTO;
 use App\Interfaces\IEncuestaService;
 use App\Interfaces\IMesaService;
 use App\Models\Encuesta;
@@ -41,8 +42,30 @@ class EncuestaService implements IEncuestaService
         $encuesta->puntuacion_mozo = $datos->puntuacionMozo;
         $encuesta->puntuacion_cocinero = $datos->puntuacionCocinero;
         $encuesta->opinion = $datos->opinion;
+        $encuesta->promedio = ($datos->puntuacionMesa + $datos->puntuacionRestaurante + $datos->puntuacionMozo + $datos->puntuacionCocinero) / 4;
         $encuesta->mesa_id = $mesa->id;
 
         return $encuesta->save();
+    }
+
+    public function TraerMejores()
+    {
+        $encuestas = Encuesta::orderByDesc("promedio")
+            ->limit(10)
+            ->get();
+            
+        $dto = array();
+
+        foreach ($encuestas as $encuesta) {
+            $dto[] = new EncuestaDTO(
+                $encuesta->id, 
+                $encuesta->puntuacion_mesa, 
+                $encuesta->puntuacion_restaurante, 
+                $encuesta->puntuacion_mozo, 
+                $encuesta->puntuacion_cocinero, 
+                $encuesta->opinion);
+        }
+
+        return $dto;
     }
 }
