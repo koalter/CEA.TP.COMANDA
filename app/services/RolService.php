@@ -1,9 +1,10 @@
 <?php
 namespace App\Services;
 
+use App\Interfaces\IRolService;
 use App\Models\Rol;
 
-class RolService 
+class RolService implements IRolService
 {
     #region Singleton
     private static $rolService;

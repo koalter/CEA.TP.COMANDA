@@ -14,7 +14,8 @@ class Mesa extends Model
     public $timestamps = false;
     protected $with = [
         'estado',
-        'pedidos'
+        'pedidos',
+        'encuesta'
     ];
   
     protected $fillable = [
@@ -29,5 +30,10 @@ class Mesa extends Model
     public function pedidos()
     {
         return $this->hasMany(Pedido::class, "mesa_id", "id");
+    }
+
+    public function encuesta()
+    {
+        return $this->hasOne(Encuesta::class, "mesa_id", "id");
     }
 }

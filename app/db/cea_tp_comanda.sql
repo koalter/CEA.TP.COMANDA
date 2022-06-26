@@ -64,7 +64,7 @@ FOREIGN KEY fk_usuarios_rol (rol_id) REFERENCES roles (id)
 CREATE TABLE cea_tp_comanda.pedidos(
 id INT(11) AUTO_INCREMENT,
 cantidad INT(11) NOT NULL DEFAULT 1,
-tiempo_preparacion INT(11) NULL,
+tiempo_preparacion DATETIME NULL,
 producto_id INT(11) NOT NULL,
 mesa_id INT(11) NOT NULL,
 estado_id INT(11) NOT NULL DEFAULT 1,
@@ -73,7 +73,24 @@ updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTA
 deleted_at DATETIME NULL,
 PRIMARY KEY (id),
 FOREIGN KEY fk_pedidos_producto (producto_id) REFERENCES productos (id),
-FOREIGN KEY fk_pedidos_estado (estado_id) REFERENCES estado_pedidos (id)
+FOREIGN KEY fk_pedidos_estado (estado_id) REFERENCES estado_pedidos (id),
+FOREIGN KEY fk_pedidos_mesa (mesa_id) REFERENCES mesas (id)
+) ENGINE = InnoDB CHARSET=utf8mb4 COLLATE utf8mb4_general_ci;
+
+CREATE TABLE cea_tp_comanda.encuestas(
+id INT NOT NULL AUTO_INCREMENT, 
+puntuacion_mesa TINYINT NOT NULL, 
+puntuacion_restaurante TINYINT NOT NULL, 
+puntuacion_mozo TINYINT NOT NULL, 
+puntuacion_cocinero TINYINT NOT NULL, 
+opinion VARCHAR(66) NOT NULL,
+promedio DECIMAL(4, 2) NOT NULL, 
+mesa_id INT NOT NULL,
+created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, 
+updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
+deleted_at DATETIME NULL, 
+PRIMARY KEY (id),
+FOREIGN KEY fk_encuestas_mesa (mesa_id) REFERENCES mesas (id)
 ) ENGINE = InnoDB CHARSET=utf8mb4 COLLATE utf8mb4_general_ci;
 
 -- INSERT data

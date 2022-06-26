@@ -14,13 +14,35 @@ class PedidoController implements IApiUsable
         $this->_pedidoService = PedidoService::obtenerInstancia();
     }
 
+    public function TraerUno($request, $response, $args)
+    {
+        try {
+            $codigo = $args["codigo"];
+            $id = $args["id"];
+
+            $resultado = $this->_pedidoService->TraerUno($id, $codigo);
+            $status = 200;
+        } catch (\Throwable $th) {
+            $resultado = array(
+                "mensaje" => $th->getMessage(),
+                "stackTrace" => $th->getTraceAsString());
+            $status = 404;
+        }
+
+        $response->getBody()->write(json_encode($resultado));
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus($status);
+    }
+
     public function CargarUno($request, $response, $args)
     {
         $parametros = $request->getParsedBody();
+        $codigo = $args['codigo'];
 
-        $resultado = $this->_pedidoService->GenerarPedido($parametros);
+        $resultado = $this->_pedidoService->GenerarPedido($codigo, $parametros);
 
-        $payload = json_encode(array("mensaje" => $resultado ? "Pedido creado con exito" : "El pedido no pudo ser creado"));
+        $payload = json_encode(array("codigo" => $resultado));
 
         $response->getBody()->write($payload);
         return $response
@@ -55,15 +77,35 @@ class PedidoController implements IApiUsable
         ->withHeader('Content-Type', 'application/json');
     }
 
+    public function ListarPedidosListos($request, $response)
+    {
+        $resultado = $this->_pedidoService->ListarPedidosListos();
+
+        $response->getBody()->write(json_encode($resultado));
+        return $response
+            ->withHeader('Content-Type', 'application/json');
+    }
+
     public function PrepararSiguiente($request, $response) 
     {
-        $resultado = $this->_pedidoService->PrepararSiguiente($_COOKIE['rol']);
+        try
+        {
+            $resultado = $this->_pedidoService->PrepararSiguiente($_COOKIE['rol']);
+            $status = 200;
+        }
+        catch (\Throwable $th)
+        {
+            $resultado = [
+                "mensaje" => $th->getMessage(),
+                "stackTrace" => $th->getTraceAsString()
+            ];
+            $status = $th->getCode() === 404 ? 404 : 400;
+        }
 
-        $payload = is_null($resultado) ? array("mensaje" => "No hay mas pedidos para preparar!") : $resultado;
-
-        $response->getBody()->write(json_encode($payload));
+        $response->getBody()->write(json_encode($resultado));
         return $response
-        ->withHeader('Content-Type', 'application/json');
+        ->withHeader('Content-Type', 'application/json')
+        ->withStatus($status);
     }
 
     public function ListoParaServir($request, $response, $args)
@@ -73,5 +115,24 @@ class PedidoController implements IApiUsable
         $response->getBody()->write(json_encode($resultado));
         return $response
         ->withHeader('Content-Type', 'application/json');
-    } 
+    }
+
+    public function ServirPedido($request, $response, $args)
+    {
+        try {
+            $resultado = $this->_pedidoService->ServirPedido($args['id']);
+            $status = 200;
+        } catch (\Throwable $th) {
+            $resultado = array(
+                "mensaje" => $th->getMessage(),
+                "stackTrace" => $th->getTraceAsString()
+            );
+            $status = $th->getCode() === 404 ? 404 : 400;
+        }
+
+        $response->getBody()->write(json_encode($resultado));
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus($status);
+    }
 }

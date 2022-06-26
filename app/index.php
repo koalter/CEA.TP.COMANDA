@@ -1,7 +1,9 @@
 <?php
+date_default_timezone_set('America/Argentina/Buenos_Aires');
 error_reporting(-1);
 ini_set('display_errors', 1);
 
+use App\Controllers\EncuestaController;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
@@ -71,17 +73,28 @@ $app->group('/productos', function (RouteCollectorProxy $group) {
     $group->post('[/]', ProductoController::class . ':CargarUno')->add(function ($request, $handler) { 
         return RolMiddleware::VerificarRol($request, $handler, ['socio']);
     });
+    $group->get('/mejor', ProductoController::class . ':TraerMasPedido')->add(function ($request, $handler) { 
+        return RolMiddleware::VerificarRol($request, $handler, ['socio']);
+    });
 })->add(function ($request, $handler) {
     return TokenMiddleware::VerificarToken($request, $handler);
 });
 
 $app->group('/mesas', function (RouteCollectorProxy $group) {
     $group->get('[/]', MesaController::class . ':TraerTodos')->add(function ($request, $handler) { 
-        return RolMiddleware::VerificarRol($request, $handler, ['socio']);
+        return RolMiddleware::VerificarRol($request, $handler, ['socio', 'mozo']);
     });
-    $group->post('[/]', MesaController::class . ':CargarUno');
+    $group->post('[/]', MesaController::class . ':CargarUno')->add(function ($request, $handler) { 
+        return RolMiddleware::VerificarRol($request, $handler, ['socio', 'mozo']);
+    });
     $group->post('/foto/{codigo}', MesaController::class . ':AgregarFoto')->add(function ($request, $handler) { 
         return RolMiddleware::VerificarRol($request, $handler, ['socio', 'mozo']);
+    });
+    $group->put('/cobrar/{codigo}', MesaController::class . ':CobrarMesa')->add(function ($request, $handler) { 
+        return RolMiddleware::VerificarRol($request, $handler, ['socio', 'mozo']);
+    });
+    $group->put('/cerrar/{codigo}', MesaController::class . ':CerrarMesa')->add(function ($request, $handler) { 
+        return RolMiddleware::VerificarRol($request, $handler, ['socio']);
     });
 })->add(function ($request, $handler) {
     return TokenMiddleware::VerificarToken($request, $handler);
@@ -93,7 +106,13 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
     });
     $group->get('/pendientes', PedidoController::class . ':ListarPendientes');
     $group->get('/en-preparacion', PedidoController::class . ':ListarEnPreparacion');
-    $group->post('/{cliente}', PedidoController::class . ':CargarUno')->add(function ($request, $handler) { 
+    $group->get('/listos', PedidoController::class . ':ListarPedidosListos')->add(function ($request, $handler) {
+        return RolMiddleware::VerificarRol($request, $handler, ['socio', 'mozo']);
+    });
+    $group->get('/servir/{id}', PedidoController::class . ':ServirPedido')->add(function ($request, $handler) {
+        return RolMiddleware::VerificarRol($request, $handler, ['socio', 'mozo']);
+    });
+    $group->post('/nuevo/{codigo}', PedidoController::class . ':CargarUno')->add(function ($request, $handler) {
         return RolMiddleware::VerificarRol($request, $handler, ['socio', 'mozo']);
     });
     $group->put('/siguiente', PedidoController::class . ':PrepararSiguiente');
@@ -103,6 +122,20 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
 });
 
 $app->post('/login', UsuarioController::class . ':Login');
+
+$app->group('/cliente', function (RouteCollectorProxy $group) {
+    $group->get('/ver/codigo/{codigo}/id/{id}', PedidoController::class . ':TraerUno');
+});
+
+$app->group('/encuestas', function (RouteCollectorProxy $group) {
+    $group->post('/responder/codigo/{codigo}/id/{id}', EncuestaController::class . ':ResponderEncuesta');
+    
+    $group->get('/mejores', EncuestaController::class . ':MejoresComentarios')->add(function ($request, $handler) {
+        return RolMiddleware::VerificarRol($request, $handler, ['socio']);
+    })->add(function ($request, $handler) {
+        return TokenMiddleware::VerificarToken($request, $handler);
+    });
+});
 
 $app->group('/admin', function (RouteCollectorProxy $group) {
     $group->get('/csv', UsuarioController::class . ':DescargarCSV')->add(function ($request, $handler) {
