@@ -40,4 +40,13 @@ class ProductoController implements IApiUsable
         return $response
         ->withHeader('Content-Type', 'application/json');
     }
+
+    public function TraerMasPedido($request, $response, $args)
+    {
+        $respuesta = $this->_productoService->TraerMasPedido();
+
+        $response->getBody()->write(json_encode($respuesta));
+        return $response
+        ->withHeader('Content-Type', 'application/json');
+    }
 }

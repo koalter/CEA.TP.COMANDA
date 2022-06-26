@@ -4,6 +4,7 @@ namespace App\Services;
 use App\Models\Producto;
 use App\DTO\ProductoDTO;
 use App\Interfaces\IProductoService;
+use App\Models\Pedido;
 
 class ProductoService implements IProductoService
 {
@@ -60,6 +61,17 @@ class ProductoService implements IProductoService
     public function ObtenerProductoPorId(int $id)
     {
         return Producto::findOrFail($id);
+    }
+
+    public function TraerMasPedido()
+    {
+        $masPedido = Pedido::orderBy("producto_id")->first();
+        $producto = Producto::where("id", "=", $masPedido->producto_id)->first();
+
+        return new ProductoDTO($producto->id,
+            $producto->descripcion,
+            $producto->precio,
+            $producto->rol->nombre);
     }
     #endregion
 }

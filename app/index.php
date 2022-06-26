@@ -73,6 +73,9 @@ $app->group('/productos', function (RouteCollectorProxy $group) {
     $group->post('[/]', ProductoController::class . ':CargarUno')->add(function ($request, $handler) { 
         return RolMiddleware::VerificarRol($request, $handler, ['socio']);
     });
+    $group->get('/mejor', ProductoController::class . ':TraerMasPedido')->add(function ($request, $handler) { 
+        return RolMiddleware::VerificarRol($request, $handler, ['socio']);
+    });
 })->add(function ($request, $handler) {
     return TokenMiddleware::VerificarToken($request, $handler);
 });

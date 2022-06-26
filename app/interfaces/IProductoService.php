@@ -7,4 +7,5 @@ interface IProductoService
     public function TraerTodos();
     public function ObtenerProducto(string $strProducto);
     public function ObtenerProductoPorId(int $id);
+    public function TraerMasPedido();
 }
