@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('America/Argentina/Buenos_Aires');
 error_reporting(-1);
 ini_set('display_errors', 1);
 
@@ -93,7 +94,13 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
     });
     $group->get('/pendientes', PedidoController::class . ':ListarPendientes');
     $group->get('/en-preparacion', PedidoController::class . ':ListarEnPreparacion');
-    $group->post('/{cliente}', PedidoController::class . ':CargarUno')->add(function ($request, $handler) { 
+    $group->get('/listos', PedidoController::class . ':ListarPedidosListos')->add(function ($request, $handler) {
+        return RolMiddleware::VerificarRol($request, $handler, ['socio', 'mozo']);
+    });
+    $group->get('/servir/{id}', PedidoController::class . ':ServirPedido')->add(function ($request, $handler) {
+        return RolMiddleware::VerificarRol($request, $handler, ['socio', 'mozo']);
+    });
+    $group->post('/nuevo/{cliente}', PedidoController::class . ':CargarUno')->add(function ($request, $handler) {
         return RolMiddleware::VerificarRol($request, $handler, ['socio', 'mozo']);
     });
     $group->put('/siguiente', PedidoController::class . ':PrepararSiguiente');
@@ -103,6 +110,10 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
 });
 
 $app->post('/login', UsuarioController::class . ':Login');
+
+$app->group('/cliente', function (RouteCollectorProxy $group) {
+    $group->get('/ver/codigo/{codigo}/id/{id}', PedidoController::class . ':TraerUno');
+});
 
 $app->group('/admin', function (RouteCollectorProxy $group) {
     $group->get('/csv', UsuarioController::class . ':DescargarCSV')->add(function ($request, $handler) {

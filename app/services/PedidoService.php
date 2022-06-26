@@ -35,7 +35,7 @@ class PedidoService implements IPedidoService
     #endregion
 
     #region Métodos Públicos
-    public function GenerarPedido(string $cliente, array $lista) 
+    public function GenerarPedido(string $cliente, array $lista)
     {
         if (trim($cliente) === "") 
         {
@@ -55,6 +55,33 @@ class PedidoService implements IPedidoService
         }
 
         return $resultadoFinal;
+    }
+
+    public function TraerUno(int $id, string $codigo)
+    {
+        $mesa = Mesa::whereFirst("codigo", "=", $codigo);
+
+        if (is_null($mesa))
+        {
+            throw new \Exception("Codigo de mesa invalido.");
+        }
+
+        $pedido = Pedido::find($id);
+
+        if (is_null($pedido))
+        {
+            throw new \Exception("Id de pedido invalido.");
+        }
+
+        $tiempoPreparacion = $this->ObtenerTiempoRestanteDePreparacion(date_create($pedido->tiempo_preparacion));
+
+        return new PedidoDTO(
+            $pedido->id,
+            $pedido->producto->descripcion,
+            $pedido->mesa->cliente,
+            $pedido->cantidad,
+            $pedido->estado->descripcion,
+            $tiempoPreparacion);
     }
 
     public function TraerTodos() 
@@ -90,17 +117,55 @@ class PedidoService implements IPedidoService
 
     public function ListarEnPreparacion(string $rolDesc)
     {
-        $rol = Rol::where('nombre', '=', $rolDesc)->first();
-        $pedidos = Pedido::has('producto')
-            ->whereRelation('producto', 'rol_id', $rol->id)
-            ->where('estado_id', '=', 2)
-            ->get();
+        if (strtolower($rolDesc) === 'socio')
+        {
+            $pedidos = Pedido::where('estado_id', '=', 2)->get();
+        }
+        else
+        {
+            $rol = Rol::where('nombre', '=', $rolDesc)->first();
+            $pedidos = Pedido::has('producto')
+                ->whereRelation('producto', 'rol_id', $rol->id)
+                ->where('estado_id', '=', 2)
+                ->get();
+        }
+
 
         $dtoPedidos = array();
 
         foreach ($pedidos as $pedido) 
         {
-            $dtoPedidos[] = new PedidoDTO($pedido->id, $pedido->producto->descripcion, $pedido->mesa->cliente, $pedido->cantidad, $pedido->estado->descripcion);
+            $tiempoPreparacion = null;
+            if (!is_null($pedido->tiempo_preparacion))
+            {
+                $tiempoPreparacion = $this->ObtenerTiempoRestanteDePreparacion(date_create($pedido->tiempo_preparacion));
+            }
+            $dtoPedidos[] = new PedidoDTO(
+                $pedido->id,
+                $pedido->producto->descripcion,
+                $pedido->mesa->cliente,
+                $pedido->cantidad,
+                $pedido->estado->descripcion,
+                $tiempoPreparacion);
+        }
+
+        return $dtoPedidos;
+    }
+
+    public function ListarPedidosListos()
+    {
+        $pedidos = Pedido::where('estado_id', '=', 3)->get();
+
+        $dtoPedidos = array();
+
+        foreach ($pedidos as $pedido)
+        {
+            $dtoPedidos[] = new PedidoDTO(
+                $pedido->id,
+                $pedido->producto->descripcion,
+                $pedido->mesa->cliente,
+                $pedido->cantidad,
+                $pedido->estado->descripcion);
         }
 
         return $dtoPedidos;
@@ -119,7 +184,11 @@ class PedidoService implements IPedidoService
             return null;
         }
 
+        $tiempoPreparacion = $siguientePedido->producto->tiempo_preparacion;
+        $intervalo = $tiempoPreparacion . " seconds";
+
         $siguientePedido->estado_id = 2;
+        $siguientePedido->tiempo_preparacion = date_add(date_create(), date_interval_create_from_date_string($intervalo));
         if ($siguientePedido->save())
         {
             $dtoPedido = new PedidoDTO(
@@ -156,6 +225,36 @@ class PedidoService implements IPedidoService
         }
         
         return $dtoPedido;
+    }
+
+    public function ServirPedido(int $id)
+    {
+        $pedido = Pedido::find($id);
+
+        if (is_null($pedido))
+        {
+            throw new \Exception("El pedido no existe.", 404);
+        }
+
+        $pedido->estado_id = 4;
+        if ($pedido->save())
+        {
+            $mesa = Mesa::find($pedido->mesa_id);
+            $mesa->estado_id = 2;
+
+            if ($mesa->save())
+            {
+                return $pedido;
+            }
+            else
+            {
+                throw new \Exception("Error al cambiar el estado de la mesa.");
+            }
+        }
+        else
+        {
+            throw new \Exception("Error al cambir el estado del pedido.");
+        }
     }
     #endregion
 
@@ -200,6 +299,16 @@ class PedidoService implements IPedidoService
         $mesa->pedidos()->saveMany($pedidos);
 
         return $mesa->codigo;
+    }
+
+    private function ObtenerTiempoRestanteDePreparacion(\DateTime $tiempoPreparacion) : string
+    {
+        $timestamp = date_timestamp_get($tiempoPreparacion) - date_timestamp_get(date_create());
+        $minutosRestantes = ceil($timestamp / 60);
+        $respuesta = $minutosRestantes == 1 || $minutosRestantes == -1 ?
+            $minutosRestantes . " minuto" : $minutosRestantes . " minutos";
+
+        return $respuesta;
     }
     #endregion
 }

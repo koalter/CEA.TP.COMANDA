@@ -62,7 +62,7 @@ class MesaService implements IMesaService
         $mesa = $this->TraerUno($codigo);
         if (!is_null($mesa))
         {
-            $nombreDeArchivo = self::PATH_FOTOS . $codigo . "_" . $mesa->cliente . '.jpg';
+            $nombreDeArchivo = self::PATH_FOTOS . $codigo . "_" . $mesa->cliente . "_" . date("j-m-Y") . '.jpg';
             if (!file_exists(self::PATH_FOTOS))
             {
                 mkdir(self::PATH_FOTOS, 0777, true);
