@@ -56,5 +56,10 @@ class ProductoService implements IProductoService
     {
         return Producto::where('descripcion', '=', $strProducto)->first();
     }
+
+    public function ObtenerProductoPorId(int $id)
+    {
+        return Producto::findOrFail($id);
+    }
     #endregion
 }

@@ -38,9 +38,9 @@ class PedidoController implements IApiUsable
     public function CargarUno($request, $response, $args)
     {
         $parametros = $request->getParsedBody();
-        $cliente = $args['cliente'];
+        $codigo = $args['codigo'];
 
-        $resultado = $this->_pedidoService->GenerarPedido($cliente, $parametros);
+        $resultado = $this->_pedidoService->GenerarPedido($codigo, $parametros);
 
         $payload = json_encode(array("codigo" => $resultado));
 

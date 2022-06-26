@@ -78,11 +78,19 @@ $app->group('/productos', function (RouteCollectorProxy $group) {
 
 $app->group('/mesas', function (RouteCollectorProxy $group) {
     $group->get('[/]', MesaController::class . ':TraerTodos')->add(function ($request, $handler) { 
-        return RolMiddleware::VerificarRol($request, $handler, ['socio']);
+        return RolMiddleware::VerificarRol($request, $handler, ['socio', 'mozo']);
     });
-    $group->post('[/]', MesaController::class . ':CargarUno');
+    $group->post('[/]', MesaController::class . ':CargarUno')->add(function ($request, $handler) { 
+        return RolMiddleware::VerificarRol($request, $handler, ['socio', 'mozo']);
+    });
     $group->post('/foto/{codigo}', MesaController::class . ':AgregarFoto')->add(function ($request, $handler) { 
         return RolMiddleware::VerificarRol($request, $handler, ['socio', 'mozo']);
+    });
+    $group->put('/cobrar/{codigo}', MesaController::class . ':CobrarMesa')->add(function ($request, $handler) { 
+        return RolMiddleware::VerificarRol($request, $handler, ['socio', 'mozo']);
+    });
+    $group->put('/cerrar/{codigo}', MesaController::class . ':CerrarMesa')->add(function ($request, $handler) { 
+        return RolMiddleware::VerificarRol($request, $handler, ['socio']);
     });
 })->add(function ($request, $handler) {
     return TokenMiddleware::VerificarToken($request, $handler);
@@ -100,7 +108,7 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
     $group->get('/servir/{id}', PedidoController::class . ':ServirPedido')->add(function ($request, $handler) {
         return RolMiddleware::VerificarRol($request, $handler, ['socio', 'mozo']);
     });
-    $group->post('/nuevo/{cliente}', PedidoController::class . ':CargarUno')->add(function ($request, $handler) {
+    $group->post('/nuevo/{codigo}', PedidoController::class . ':CargarUno')->add(function ($request, $handler) {
         return RolMiddleware::VerificarRol($request, $handler, ['socio', 'mozo']);
     });
     $group->put('/siguiente', PedidoController::class . ':PrepararSiguiente');

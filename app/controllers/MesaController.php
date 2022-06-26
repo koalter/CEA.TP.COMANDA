@@ -49,4 +49,45 @@ class MesaController implements IApiUsable
         return $response
         ->withHeader('Content-Type', 'application/json');
     }
+
+    public function CobrarMesa($request, $response, $args)
+    {
+        try {
+            $costoTotal = $this->_mesaService->AClientePagando($args["codigo"]);
+            $resultado = array(
+                "costoTotal" => $costoTotal
+            );
+            $status = 200;
+        } catch (\Throwable $th) {
+            $resultado = array(
+                "mensaje" => $th->getMessage(),
+                "stackTrace" => $th->getTraceAsString()
+            );
+            $status = $th->getCode() === 404 ? 404 : 400;
+        }
+
+        $response->getBody()->write(json_encode($resultado));
+        return $response
+        ->withHeader('Content-Type', 'application/json')
+        ->withStatus($status);
+    }
+
+    public function CerrarMesa($request, $response, $args)
+    {
+        try {
+            $resultado = $this->_mesaService->CerrarMesa($args["codigo"]);
+            $status = 200;
+        } catch (\Throwable $th) {
+            $resultado = array(
+                "mensaje" => $th->getMessage(),
+                "stackTrace" => $th->getTraceAsString()
+            );
+            $status = $th->getCode() === 404 ? 404 : 400;
+        }
+
+        $response->getBody()->write(json_encode($resultado));
+        return $response
+        ->withHeader('Content-Type', 'application/json')
+        ->withStatus($status);
+    }
 }

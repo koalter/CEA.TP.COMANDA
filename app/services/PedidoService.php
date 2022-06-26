@@ -14,7 +14,7 @@ class PedidoService implements IPedidoService
     private static $pedidoService;
     private $productoService;
     private $mesaService;
-    private const CLIENTE = "cliente";
+    private const CODIGO = "codigo";
 
     protected function __construct() 
     {
@@ -35,11 +35,11 @@ class PedidoService implements IPedidoService
     #endregion
 
     #region Métodos Públicos
-    public function GenerarPedido(string $cliente, array $lista)
+    public function GenerarPedido(string $codigo, array $lista)
     {
-        if (trim($cliente) === "") 
+        if (trim($codigo) === "") 
         {
-            throw new \Exception("Falta clave '".self::CLIENTE."'", 1);
+            throw new \Exception("Falta clave '".self::CODIGO."'", 1);
         }
 
         $pedidosAGuardar = array();
@@ -51,7 +51,7 @@ class PedidoService implements IPedidoService
 
         if (count($pedidosAGuardar) > 0)
         {
-            $resultadoFinal = $this->CargarPedidosEnBase($cliente, $pedidosAGuardar);
+            $resultadoFinal = $this->CargarPedidosEnBase($codigo, $pedidosAGuardar);
         }
 
         return $resultadoFinal;
@@ -239,10 +239,7 @@ class PedidoService implements IPedidoService
         $pedido->estado_id = 4;
         if ($pedido->save())
         {
-            $mesa = Mesa::find($pedido->mesa_id);
-            $mesa->estado_id = 2;
-
-            if ($mesa->save())
+            if ($this->mesaService->AClienteComiendo($pedido->mesa_id))
             {
                 return $pedido;
             }
@@ -285,16 +282,11 @@ class PedidoService implements IPedidoService
         return $tercerPaso;
     }
 
-    private function CargarPedidosEnBase(string $cliente, array $pedidos) : string 
+    private function CargarPedidosEnBase(string $codigo, array $pedidos) : string 
     {
-        $mesa = Mesa::firstOrCreate([
-            'cliente' => $cliente
+        $mesa = Mesa::firstOrFail([
+            'codigo' => $codigo
         ]);
-        if (!isset($mesa->codigo))
-        {
-            $mesa->codigo = $this->mesaService->GenerarCodigo();
-            $mesa->save();
-        }
 
         $mesa->pedidos()->saveMany($pedidos);
 

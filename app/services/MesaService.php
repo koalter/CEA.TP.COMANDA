@@ -4,7 +4,9 @@ namespace App\Services;
 use App\Models\Mesa;
 use App\Models\EstadoMesas;
 use App\DTO\MesaDTO;
+use App\DTO\PedidoDTO;
 use App\Interfaces\IMesaService;
+use App\Interfaces\IProductoService;
 
 class MesaService implements IMesaService
 {
@@ -12,11 +14,11 @@ class MesaService implements IMesaService
     private const PATH_FOTOS = "./fotos/";
     private const DICCIONARIO = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWYZ";
     private static $mesaService;
-    private $rolService;
+    private IProductoService $_productoService;
 
     protected function __construct() 
     {
-        $this->rolService = RolService::obtenerInstancia();
+        $this->_productoService = ProductoService::obtenerInstancia();
     }
 
     protected function __clone() {}
@@ -36,9 +38,14 @@ class MesaService implements IMesaService
     {
         $mesa = new Mesa();
         $mesa->cliente = strtolower($cliente);
-        $mesa->GenerarCodigo();
+        $mesa->codigo = $this->GenerarCodigo();
         
-        return $mesa->save();
+        if (!$mesa->save())
+        {
+            throw new \Exception("No se pudo dar de alta la mesa.");
+        }
+
+        return $mesa->codigo;
     }
 
     public function TraerTodos() 
@@ -47,7 +54,7 @@ class MesaService implements IMesaService
         $dtoMesas = array();
 
         foreach ($mesas as $mesa) {
-            $dtoMesas[] = new MesaDTO($mesa->id, $mesa->cliente, $mesa->estado->descripcion);
+            $dtoMesas[] = new MesaDTO($mesa->id, $mesa->cliente, $mesa->estado->descripcion, $mesa->codigo);
         }
         return $dtoMesas;
     }
@@ -86,6 +93,44 @@ class MesaService implements IMesaService
         }
 
         return $resultado;
+    }
+
+    public function AClienteComiendo(int $id)
+    {
+        $mesa = Mesa::findOrFail($id);
+        $mesa->estado_id = 2;
+
+        return $mesa->save();
+    }
+
+    public function AClientePagando(string $codigo)
+    {
+        $mesa = Mesa::where([
+            "codigo" => $codigo,
+            "estado_id" => 2
+        ])->firstOrFail();
+
+        $mesa->estado_id = 3;
+
+        $costoTotal = 0;
+
+        foreach ($mesa->pedidos as $pedido)
+        {
+            $costoTotal += $this->_productoService->ObtenerProductoPorId($pedido->id)->precio * $pedido->cantidad;
+        }
+
+        return $costoTotal;
+    }
+
+    public function CerrarMesa(string $codigo)
+    {
+        $mesa = Mesa::where([
+            "codigo" => $codigo,
+            "estado_id" => 3
+        ])->firstOrFail();
+        $mesa->estado_id = 4;
+
+        return $mesa->save();
     }
     #endregion
 
