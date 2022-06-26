@@ -11,4 +11,5 @@ interface IMesaService
     public function AClienteComiendo(int $id);
     public function AClientePagando(string $codigo);
     public function CerrarMesa(string $codigo);
+    public function ObtenerMesaCerradaPorIdYCodigo(int $id, string $codigo);
 }

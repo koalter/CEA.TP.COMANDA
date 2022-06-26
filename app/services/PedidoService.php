@@ -3,7 +3,10 @@ namespace App\Services;
 
 use App\Models\Pedido;
 use App\DTO\PedidoDTO;
+use App\Interfaces\IMesaService;
 use App\Interfaces\IPedidoService;
+use App\Interfaces\IProductoService;
+use App\Interfaces\IUsuarioService;
 use App\Models\EstadoPedidos;
 use App\Models\Mesa;
 use App\Models\Rol;
@@ -11,15 +14,17 @@ use App\Models\Rol;
 class PedidoService implements IPedidoService
 {
     #region Singleton
-    private static $pedidoService;
-    private $productoService;
-    private $mesaService;
+    private static IPedidoService $pedidoService;
+    private IProductoService $productoService;
+    private IMesaService $mesaService;
+    private IUsuarioService $usuarioService;
     private const CODIGO = "codigo";
 
     protected function __construct() 
     {
         $this->productoService = ProductoService::obtenerInstancia();
         $this->mesaService = MesaService::obtenerInstancia();
+        $this->usuarioService = UsuarioService::obtenerInstancia();
     }
 
     protected function __clone() {}
@@ -181,10 +186,17 @@ class PedidoService implements IPedidoService
 
         if (is_null($siguientePedido))
         {
-            return null;
+            throw new \Exception("No hay mas pedidos para preparar.", 404);
         }
 
-        $tiempoPreparacion = $siguientePedido->producto->tiempo_preparacion;
+        $usuarios = count($this->usuarioService->TraerPorRolId($rol->id));
+
+        if ($usuarios < 1)
+        {
+            throw new \Exception("No hay empleados en servicio para preparar el pedido.", 404);
+        }
+
+        $tiempoPreparacion = $siguientePedido->producto->tiempo_preparacion * $siguientePedido->cantidad / $usuarios;
         $intervalo = $tiempoPreparacion . " seconds";
 
         $siguientePedido->estado_id = 2;
@@ -210,7 +222,7 @@ class PedidoService implements IPedidoService
             ->whereRelation('producto', 'rol_id', $rol->id)
             ->where('estado_id', '=', 2)
             ->where('id', '=', $id)
-            ->first();
+            ->firstOrFail();
 
         $siguientePedido->estado_id = 3;
         if ($siguientePedido->save())
@@ -241,7 +253,7 @@ class PedidoService implements IPedidoService
         {
             if ($this->mesaService->AClienteComiendo($pedido->mesa_id))
             {
-                return $pedido;
+                return true;
             }
             else
             {

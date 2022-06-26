@@ -3,6 +3,7 @@ date_default_timezone_set('America/Argentina/Buenos_Aires');
 error_reporting(-1);
 ini_set('display_errors', 1);
 
+use App\Controllers\EncuestaController;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
@@ -121,6 +122,7 @@ $app->post('/login', UsuarioController::class . ':Login');
 
 $app->group('/cliente', function (RouteCollectorProxy $group) {
     $group->get('/ver/codigo/{codigo}/id/{id}', PedidoController::class . ':TraerUno');
+    $group->post('/encuesta/codigo/{codigo}/id/{id}', EncuestaController::class . ':ResponderEncuesta');
 });
 
 $app->group('/admin', function (RouteCollectorProxy $group) {

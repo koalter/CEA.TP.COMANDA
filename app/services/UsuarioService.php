@@ -52,6 +52,11 @@ class UsuarioService implements IUsuarioService
         return $dtoUsuarios;
     }
 
+    public function TraerPorRolId(int $id)
+    {
+        return Usuario::where("rol_id", "=", $id)->get();
+    }
+
     public function Login(string $username, string $password)
     {
         $user = Usuario::where(array(

@@ -77,6 +77,21 @@ FOREIGN KEY fk_pedidos_estado (estado_id) REFERENCES estado_pedidos (id),
 FOREIGN KEY fk_pedidos_mesa (mesa_id) REFERENCES mesas (id)
 ) ENGINE = InnoDB CHARSET=utf8mb4 COLLATE utf8mb4_general_ci;
 
+CREATE TABLE cea_tp_comanda.encuestas(
+id INT NOT NULL AUTO_INCREMENT, 
+puntuacion_mesa TINYINT NOT NULL, 
+puntuacion_restaurante TINYINT NOT NULL, 
+puntuacion_mozo TINYINT NOT NULL, 
+puntuacion_cocinero TINYINT NOT NULL, 
+opinion VARCHAR(66) NOT NULL, 
+mesa_id INT NOT NULL,
+created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, 
+updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
+deleted_at DATETIME NULL, 
+PRIMARY KEY (id),
+FOREIGN KEY fk_encuestas_mesa (mesa_id) REFERENCES mesas (id)
+) ENGINE = InnoDB CHARSET=utf8mb4 COLLATE utf8mb4_general_ci;
+
 -- INSERT data
 INSERT INTO cea_tp_comanda.roles (nombre)
 VALUES ('socio'),

@@ -88,13 +88,24 @@ class PedidoController implements IApiUsable
 
     public function PrepararSiguiente($request, $response) 
     {
-        $resultado = $this->_pedidoService->PrepararSiguiente($_COOKIE['rol']);
+        try
+        {
+            $resultado = $this->_pedidoService->PrepararSiguiente($_COOKIE['rol']);
+            $status = 200;
+        }
+        catch (\Throwable $th)
+        {
+            $resultado = [
+                "mensaje" => $th->getMessage(),
+                "stackTrace" => $th->getTraceAsString()
+            ];
+            $status = $th->getCode() === 404 ? 404 : 400;
+        }
 
-        $payload = is_null($resultado) ? array("mensaje" => "No hay mas pedidos para preparar!") : $resultado;
-
-        $response->getBody()->write(json_encode($payload));
+        $response->getBody()->write(json_encode($resultado));
         return $response
-        ->withHeader('Content-Type', 'application/json');
+        ->withHeader('Content-Type', 'application/json')
+        ->withStatus($status);
     }
 
     public function ListoParaServir($request, $response, $args)

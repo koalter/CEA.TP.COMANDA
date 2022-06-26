@@ -112,6 +112,11 @@ class MesaService implements IMesaService
 
         $mesa->estado_id = 3;
 
+        if (!$mesa->save())
+        {
+            throw new \Exception("Hubo un error al mover el estado de la mesa.");
+        }
+
         $costoTotal = 0;
 
         foreach ($mesa->pedidos as $pedido)
@@ -131,6 +136,15 @@ class MesaService implements IMesaService
         $mesa->estado_id = 4;
 
         return $mesa->save();
+    }
+
+    public function ObtenerMesaCerradaPorIdYCodigo(int $id, string $codigo)
+    {
+        return Mesa::where([
+            "id" => $id,
+            "codigo" => $codigo,
+            "estado_id" => 4
+        ])->firstOrFail();
     }
     #endregion
 
