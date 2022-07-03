@@ -56,10 +56,15 @@ class PedidoService implements IPedidoService
 
         if (count($pedidosAGuardar) > 0)
         {
-            $resultadoFinal = $this->CargarPedidosEnBase($codigo, $pedidosAGuardar);
+            $codigo = $this->CargarPedidosEnBase($codigo, $pedidosAGuardar);
         }
 
-        return $resultadoFinal;
+        return array(
+            "codigo" => $codigo,
+            "pedidos" => array_map(function ($elemento) { 
+                return $elemento->id;
+            }, $pedidosAGuardar)
+        );
     }
 
     public function TraerUno(int $id, string $codigo)
@@ -96,7 +101,8 @@ class PedidoService implements IPedidoService
 
         foreach ($pedidos as $pedido) 
         {
-            $dtoPedidos[] = new PedidoDTO($pedido->id, $pedido->producto->descripcion, $pedido->mesa->cliente, $pedido->cantidad, $pedido->estado->descripcion);
+            $tiempoPreparacion = isset($pedido->tiempo_preparacion) ? $this->ObtenerTiempoRestanteDePreparacion(date_create($pedido->tiempo_preparacion)) : null;
+            $dtoPedidos[] = new PedidoDTO($pedido->id, $pedido->producto->descripcion, $pedido->mesa->cliente, $pedido->cantidad, $pedido->estado->descripcion, $tiempoPreparacion);
         }
 
         return $dtoPedidos;
@@ -197,7 +203,7 @@ class PedidoService implements IPedidoService
         }
 
         $tiempoPreparacion = $siguientePedido->producto->tiempo_preparacion * $siguientePedido->cantidad / $usuarios;
-        $intervalo = $tiempoPreparacion . " seconds";
+        $intervalo = $tiempoPreparacion . " minutes";
 
         $siguientePedido->estado_id = 2;
         $siguientePedido->tiempo_preparacion = date_add(date_create(), date_interval_create_from_date_string($intervalo));
@@ -296,9 +302,7 @@ class PedidoService implements IPedidoService
 
     private function CargarPedidosEnBase(string $codigo, array $pedidos) : string 
     {
-        $mesa = Mesa::firstOrFail([
-            'codigo' => $codigo
-        ]);
+        $mesa = Mesa::where("codigo", "=", $codigo)->firstOrFail();
 
         $mesa->pedidos()->saveMany($pedidos);
 

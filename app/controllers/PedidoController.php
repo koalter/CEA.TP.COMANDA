@@ -42,7 +42,7 @@ class PedidoController implements IApiUsable
 
         $resultado = $this->_pedidoService->GenerarPedido($codigo, $parametros);
 
-        $payload = json_encode(array("codigo" => $resultado));
+        $payload = json_encode($resultado);
 
         $response->getBody()->write($payload);
         return $response

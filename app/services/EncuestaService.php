@@ -27,13 +27,20 @@ class EncuestaService implements IEncuestaService
         return self::$encuestaService;
     }
 
-    public function Responder(string $codigo, int $id, $datos)
+    public function Responder(string $codigo, $datos)
     {
-        $mesa = $this->_mesaService->ObtenerMesaCerradaPorIdYCodigo($id, $codigo);
+        $mesa = $this->_mesaService->ObtenerMesaCerradaPorIdYCodigo($codigo);
 
         if (is_null($mesa))
         {
             throw new \Exception("Datos de mesa invalidos.", 404);
+        }
+
+        
+        $encuesta = Encuesta::where("mesa_id", "=", $mesa->id)->first();
+        if (!is_null($encuesta)) 
+        {
+            return false;
         }
 
         $encuesta = new Encuesta;

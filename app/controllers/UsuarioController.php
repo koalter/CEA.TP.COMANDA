@@ -176,4 +176,10 @@ class UsuarioController implements IApiUsable
       ->withHeader('Content-Type', 'application/json')
       ->withStatus($status);
   }
+
+  public function DescargarPDF($request, $response)
+  {
+    $resultado = $this->_fileService->DescargarPDF();
+    $response->getBody()->write($resultado);
+  }
 }

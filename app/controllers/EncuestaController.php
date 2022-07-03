@@ -19,11 +19,15 @@ class EncuestaController
         try {
             $body = $request->getParsedBody();
             $dto = new EncuestaDTO(-1, $body["mesa"], $body["restaurante"], $body["mozo"], $body["cocinero"], $body["opinion"]);
-            if ($this->_encuestaService->Responder($args["codigo"], $args["id"], $dto))
+            if ($this->_encuestaService->Responder($args["codigo"], $dto))
             {
                 $resultado = ["mensaje" => "Gracias por responder a nuestra encuesta de satisfaccion."];
-                $status = 200;
             }
+            else 
+            {
+                $resultado = ["mensaje" => "Ya ha respondido la encuesta."];
+            }
+            $status = 200;
         } catch (\Throwable $th) {
             $resultado = array(
                 "mensaje" => $th->getMessage(),
