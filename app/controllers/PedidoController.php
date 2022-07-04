@@ -135,4 +135,26 @@ class PedidoController implements IApiUsable
             ->withHeader('Content-Type', 'application/json')
             ->withStatus($status);
     }
+
+    public function TraerDemorados($request, $response, $args)
+    {
+        try
+        {
+            $resultado = $this->_pedidoService->TraerDemorados();
+            $status = 200;
+        }
+        catch (\Throwable $th)
+        {
+            $resultado = array(
+                "mensaje" => $th->getMessage(),
+                "stackTrace" => $th->getTraceAsString()
+            );
+            $status = 400;
+        }
+
+        $response->getBody()->write(json_encode($resultado));
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus($status);
+    }
 }

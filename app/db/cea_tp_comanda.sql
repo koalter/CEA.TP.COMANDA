@@ -65,6 +65,7 @@ CREATE TABLE cea_tp_comanda.pedidos(
 id INT(11) AUTO_INCREMENT,
 cantidad INT(11) NOT NULL DEFAULT 1,
 tiempo_preparacion DATETIME NULL,
+tiempo_listo DATETIME NULL,
 producto_id INT(11) NOT NULL,
 mesa_id INT(11) NOT NULL,
 estado_id INT(11) NOT NULL DEFAULT 1,

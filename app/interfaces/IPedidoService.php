@@ -12,4 +12,5 @@ interface IPedidoService
     public function PrepararSiguiente(string $rol);
     public function ListoParaServir(string $rol, int $id);
     public function ServirPedido(int $id);
+    public function TraerDemorados();
 }

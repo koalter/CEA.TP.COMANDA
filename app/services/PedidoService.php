@@ -231,6 +231,7 @@ class PedidoService implements IPedidoService
             ->firstOrFail();
 
         $siguientePedido->estado_id = 3;
+        $siguientePedido->tiempo_listo = date_create();
         if ($siguientePedido->save())
         {
             $dtoPedido = new PedidoDTO(
@@ -270,6 +271,23 @@ class PedidoService implements IPedidoService
         {
             throw new \Exception("Error al cambir el estado del pedido.");
         }
+    }
+
+    public function TraerDemorados()
+    {
+        $resultados = Pedido::has('mesa')->whereColumn('tiempo_preparacion', '<', 'tiempo_listo')
+                        ->get();
+        $dtoArray = array();
+
+        foreach ($resultados as $pedido) {
+            $dtoArray[] = new PedidoDTO($pedido->id, 
+                                        $pedido->producto->descripcion, 
+                                        $pedido->mesa->cliente, 
+                                        $pedido->cantidad,
+                                        $pedido->estado->descripcion);
+        }
+
+        return $dtoArray;
     }
     #endregion
 

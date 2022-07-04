@@ -117,6 +117,9 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
     });
     $group->put('/siguiente', PedidoController::class . ':PrepararSiguiente');
     $group->put('/listo/{id}', PedidoController::class . ':ListoParaServir');
+    $group->get('/tardes', PedidoController::class . ':TraerDemorados')->add(function ($request, $handler) { 
+        return RolMiddleware::VerificarRol($request, $handler, ['socio']);
+    });
 })->add(function ($request, $handler) {
     return TokenMiddleware::VerificarToken($request, $handler);
 });
