@@ -5,6 +5,7 @@ use App\Models\Producto;
 use App\DTO\ProductoDTO;
 use App\Interfaces\IProductoService;
 use App\Models\Pedido;
+use PDO;
 
 class ProductoService implements IProductoService
 {
@@ -65,13 +66,18 @@ class ProductoService implements IProductoService
 
     public function TraerMasPedido()
     {
-        $masPedido = Pedido::orderBy("producto_id")->first();
-        $producto = Producto::where("id", "=", $masPedido->producto_id)->first();
+        $pdo = new PDO('mysql:host='.$_ENV['MYSQL_HOST'].';dbname='.$_ENV['MYSQL_DB'].';charset=utf8', $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASS'], array(PDO::ATTR_EMULATE_PREPARES => false, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
+        $query = $pdo->prepare("SELECT SUM(`cantidad`) cantidad, pr.* FROM `pedidos` pe, `productos` pr WHERE pe.producto_id = pr.id GROUP BY `producto_id` ORDER BY cantidad desc LIMIT 1;");
 
-        return new ProductoDTO($producto->id,
-            $producto->descripcion,
-            $producto->precio,
-            $producto->rol->nombre);
+        if ($query->execute())
+        {
+            $resultado = $query->fetch(PDO::FETCH_ASSOC);
+            $producto = new ProductoDTO($resultado['id'], $resultado['descripcion'], $resultado['precio']);
+
+            return $producto;
+        }
+        
+        return null;
     }
     #endregion
 }

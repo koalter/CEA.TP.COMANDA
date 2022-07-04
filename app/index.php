@@ -117,6 +117,9 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
     });
     $group->put('/siguiente', PedidoController::class . ':PrepararSiguiente');
     $group->put('/listo/{id}', PedidoController::class . ':ListoParaServir');
+    $group->get('/tardes', PedidoController::class . ':TraerDemorados')->add(function ($request, $handler) { 
+        return RolMiddleware::VerificarRol($request, $handler, ['socio']);
+    });
 })->add(function ($request, $handler) {
     return TokenMiddleware::VerificarToken($request, $handler);
 });
@@ -128,7 +131,7 @@ $app->group('/cliente', function (RouteCollectorProxy $group) {
 });
 
 $app->group('/encuestas', function (RouteCollectorProxy $group) {
-    $group->post('/responder/codigo/{codigo}/id/{id}', EncuestaController::class . ':ResponderEncuesta');
+    $group->post('/responder/codigo/{codigo}', EncuestaController::class . ':ResponderEncuesta');
     
     $group->get('/mejores', EncuestaController::class . ':MejoresComentarios')->add(function ($request, $handler) {
         return RolMiddleware::VerificarRol($request, $handler, ['socio']);
@@ -138,6 +141,9 @@ $app->group('/encuestas', function (RouteCollectorProxy $group) {
 });
 
 $app->group('/admin', function (RouteCollectorProxy $group) {
+    $group->get('/pdf', UsuarioController::class . ':DescargarPDF')->add(function ($request, $handler) {
+        return TokenMiddleware::VerificarToken($request, $handler);
+    });
     $group->get('/csv', UsuarioController::class . ':DescargarCSV')->add(function ($request, $handler) {
         return TokenMiddleware::VerificarToken($request, $handler);
     });

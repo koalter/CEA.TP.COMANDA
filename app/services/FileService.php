@@ -9,6 +9,7 @@ use App\Models\Pedido;
 use App\Models\Producto;
 use App\Models\Rol;
 use App\Models\Usuario;
+use Fpdf\Fpdf;
 use PDO;
 
 class FileService implements IFileService
@@ -85,6 +86,15 @@ class FileService implements IFileService
         fwrite($archivo, $csv);
         fclose($archivo);
         return $filename;
+    }
+
+    public function DescargarPDF()
+    {
+        $pdf = new Fpdf();
+        $pdf->AddPage();
+        $pdf->Image("./assets/logo.jpg", 10, 6, 100);
+
+        $pdf->Output();
     }
     #endregion
 

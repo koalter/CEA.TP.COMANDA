@@ -138,10 +138,9 @@ class MesaService implements IMesaService
         return $mesa->save();
     }
 
-    public function ObtenerMesaCerradaPorIdYCodigo(int $id, string $codigo)
+    public function ObtenerMesaCerradaPorIdYCodigo(string $codigo)
     {
         return Mesa::where([
-            "id" => $id,
             "codigo" => $codigo,
             "estado_id" => 4
         ])->firstOrFail();

@@ -8,12 +8,15 @@ class ProductoDTO implements \JsonSerializable
     private float $precio;
     private string $rol;
 
-    public function __construct(int $id, string $descripcion, float $precio, string $rol)
+    public function __construct(int $id, string $descripcion, float $precio, string $rol = null)
     {
         $this->id = $id;
         $this->descripcion = $descripcion;
         $this->precio = $precio;
-        $this->rol = $rol;
+        if (!is_null($rol))
+        {
+            $this->rol = $rol;
+        }
     }
     
     public function __get($name)

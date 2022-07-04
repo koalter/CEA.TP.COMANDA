@@ -17,14 +17,19 @@ class MesaController implements IApiUsable
     public function CargarUno($request, $response, $args)
     {
         $parametros = $request->getParsedBody();
-
         $cliente = strtolower($parametros['cliente']);
 
-        $resultado = $this->_mesaService->CargarUno($cliente);
+        try {
+            $resultado = $this->_mesaService->CargarUno($cliente);
+            $payload = array("codigo" => $resultado);
+        } catch (\Throwable $th) {
+            $payload = array(
+                "mensaje" => $th->getMessage(),
+                "stackTrace" => $th->getTraceAsString()
+            );
+        }
 
-        $payload = json_encode(array("mensaje" => $resultado ? "Mesa creada con exito" : "La mesa no pudo ser creada"));
-
-        $response->getBody()->write($payload);
+        $response->getBody()->write(json_encode($payload));
         return $response
         ->withHeader('Content-Type', 'application/json');
     }

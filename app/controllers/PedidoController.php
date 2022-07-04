@@ -42,7 +42,7 @@ class PedidoController implements IApiUsable
 
         $resultado = $this->_pedidoService->GenerarPedido($codigo, $parametros);
 
-        $payload = json_encode(array("codigo" => $resultado));
+        $payload = json_encode($resultado);
 
         $response->getBody()->write($payload);
         return $response
@@ -128,6 +128,28 @@ class PedidoController implements IApiUsable
                 "stackTrace" => $th->getTraceAsString()
             );
             $status = $th->getCode() === 404 ? 404 : 400;
+        }
+
+        $response->getBody()->write(json_encode($resultado));
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus($status);
+    }
+
+    public function TraerDemorados($request, $response, $args)
+    {
+        try
+        {
+            $resultado = $this->_pedidoService->TraerDemorados();
+            $status = 200;
+        }
+        catch (\Throwable $th)
+        {
+            $resultado = array(
+                "mensaje" => $th->getMessage(),
+                "stackTrace" => $th->getTraceAsString()
+            );
+            $status = 400;
         }
 
         $response->getBody()->write(json_encode($resultado));
